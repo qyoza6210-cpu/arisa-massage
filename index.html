@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f0f11">
+    <title>นวดเพื่อสุขภาพอริษา - ARISA HEALTH MASSAGE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: {
+                colors: { gold: { DEFAULT: '#D4AF37', light: '#F3E5AB', hover: '#C5A028' }, darkbg: '#0f0f11', cardbg: '#1a1a1d', panelbg: '#242428' },
+                fontFamily: { kanit: ['Kanit', 'sans-serif'], display: ['Playfair Display', 'serif'] }
+            }}
+        }
+    </script>
+    <style>
+        :root { --primary: #D4AF37; --bg: #0f0f11; --card: #1a1a1d; --text: #E0E0E0; }
+        body { font-family: 'Kanit', sans-serif; background-color: var(--bg); color: var(--text); overflow-x: hidden; }
+        .gold-text { background: linear-gradient(135deg, #FFF099 0%, var(--primary) 50%, #AA7C11 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .glass { background: rgba(26,26,29,0.7); backdrop-filter: blur(16px); border: 1px solid rgba(212,175,55,0.3); }
+        .btn-gold { background: var(--primary); color: black; transition: all 0.2s; }
+        .btn-gold:hover { background: #C5A028; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(212,175,55,0.3); }
+        .btn-gold:disabled { opacity: 0.6; transform: none; cursor: not-allowed; }
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
+        .animate-fade { animation: fadeInUp 0.5s cubic-bezier(0.16,1,0.3,1) forwards; }
+        #toast { position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-100px); background:#1a1a1d; border:1px solid var(--primary); color:var(--primary); padding:12px 24px; border-radius:8px; z-index:99999; transition:transform 0.4s; box-shadow:0 10px 30px rgba(0,0,0,0.8); font-size:14px; display:flex; align-items:center; gap:8px; max-width:90vw; }
+        #toast.show { transform:translateX(-50%) translateY(0); }
+        .tab-btn { transition: all 0.3s ease; border-left: 3px solid transparent; }
+        .tab-btn.active { background: linear-gradient(90deg, rgba(212,175,55,0.1) 0%, transparent 100%); border-left-color: var(--primary); color: var(--primary); }
+        .drag-over { border-top: 2px dashed var(--primary) !important; opacity: 0.5; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.7); } 70% { box-shadow: 0 0 0 15px rgba(239,68,68,0); } 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); } }
+        .pulse-badge { animation: pulse-ring 1.5s infinite; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative selection:bg-gold selection:text-black">
+
+    <div id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastMsg"></span></div>
+
+    <!-- Welcome Popup -->
+    <div id="welcomePopup" class="fixed inset-0 z-[9998] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 transition-opacity duration-500 hidden">
+        <div class="bg-cardbg border border-gold rounded-3xl max-w-md w-full overflow-hidden shadow-[0_0_50px_rgba(212,175,55,0.2)] relative animate-fade">
+            <button onclick="window.app.closeWelcome()" class="absolute top-4 right-4 w-8 h-8 bg-black/50 hover:bg-black text-gold rounded-full flex items-center justify-center z-10 transition"><i class="fa-solid fa-xmark"></i></button>
+            <div class="h-56 bg-cover bg-center" id="popupImg"></div>
+            <div class="p-8 text-center space-y-4 relative z-10 -mt-12 bg-gradient-to-t from-cardbg via-cardbg to-transparent pt-12">
+                <div class="w-16 h-16 mx-auto rounded-full border border-gold flex items-center justify-center text-gold text-2xl bg-darkbg shadow-[0_0_20px_rgba(212,175,55,0.3)]"><i class="fa-solid fa-spa"></i></div>
+                <h2 class="text-2xl font-bold font-display gold-text" id="popupTitle">ยินดีต้อนรับ</h2>
+                <p class="text-sm text-gray-300 leading-relaxed" id="popupText">...</p>
+                <button onclick="window.app.closeWelcome()" class="w-full py-3.5 btn-gold font-bold rounded-xl mt-2 shadow-lg">เข้าสู่หน้าหลัก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 glass border-b border-gold shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+                <div id="headerLogo" class="w-10 h-10 rounded-full bg-gold/10 border border-gold flex items-center justify-center text-gold font-display text-xl shadow-[0_0_15px_rgba(212,175,55,0.3)]">อ</div>
+                <div>
+                    <h1 class="text-base md:text-lg font-bold gold-text leading-tight shop-title-text tracking-wide truncate max-w-[150px] md:max-w-none">...</h1>
+                    <span class="text-[10px] md:text-xs text-gray-400 tracking-[0.2em] font-display shop-subtitle-text">...</span>
+                </div>
+            </div>
+            <div class="flex space-x-2 items-center">
+                <button onclick="window.app.openAuthModal('staff')" id="staffBtn" class="relative px-4 py-2 bg-transparent border border-gold text-gold rounded-full text-xs font-semibold hover:bg-gold/10 transition-all">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    <span id="newOrderBadge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[10px] rounded-full min-w-[20px] h-5 flex items-center justify-center font-bold pulse-badge">0</span>
+                </button>
+                <button onclick="window.app.openAuthModal('admin')" class="px-4 py-2 btn-gold rounded-full text-xs font-bold shadow-[0_0_10px_rgba(212,175,55,0.3)]"><i class="fa-solid fa-user-shield"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <main id="mainContent" class="max-w-6xl mx-auto px-4 py-8 flex-grow space-y-16 pb-24"></main>
+
+    <footer class="border-t border-gold py-8 mt-auto text-center bg-black/50">
+        <p class="text-xs text-gray-500">© 2024 <span class="text-gold shop-title-text">นวดเพื่อสุขภาพอริษา</span></p>
+        <p class="text-[10px] text-gray-600 mt-1 font-display tracking-widest">PREMIUM EXPERIENCE</p>
+    </footer>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="bg-cardbg border border-gold rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 space-y-5 relative shadow-[0_20px_50px_rgba(0,0,0,0.8)] animate-fade">
+            <button onclick="window.app.closeBookingModal()" class="absolute top-5 right-5 text-gray-400 hover:text-gold transition"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h3 class="text-xl font-bold text-gold font-display tracking-wide border-b border-gold pb-3">แบบฟอร์มสั่งจองคิว</h3>
+            <div class="bg-panelbg p-4 rounded-xl border border-gold">
+                <div id="modalCourseName" class="font-bold text-white text-sm md:text-base"></div>
+                <div class="flex justify-between items-end mt-2">
+                    <div class="text-xs text-gray-400" id="paymentTypeText">ยอดชำระเต็ม (100%)</div>
+                    <div class="text-right">
+                        <div class="text-xs text-gray-500 line-through" id="totalPriceDisplay"></div>
+                        <span id="modalCoursePrice" class="text-gold font-bold text-xl font-display"></span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mt-3">
+                    <button type="button" id="btn-pay-full" class="rounded-lg py-2 text-xs bg-gold text-black font-bold" onclick="window.app.setPayType('full')">ชำระเต็ม 100%</button>
+                    <button type="button" id="btn-pay-deposit" class="rounded-lg py-2 text-xs border border-gold text-gray-400 hover:text-white" onclick="window.app.setPayType('deposit')">มัดจำ 50%</button>
+                </div>
+            </div>
+
+            <form id="bookingForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">ชื่อผู้สั่งจอง <span class="text-red-400">*</span></label>
+                    <input type="text" id="custName" required placeholder="กรอกชื่อ-นามสกุล" class="w-full px-4 py-3 bg-darkbg border border-gold rounded-xl text-sm text-white focus:outline-none focus:border-gold">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">เบอร์โทรศัพท์ 10 หลัก <span class="text-red-400">*</span></label>
+                    <input type="tel" id="custTel" required pattern="0[0-9]{9}" maxlength="10" placeholder="08XXXXXXXX" inputmode="numeric" class="w-full px-4 py-3 bg-darkbg border border-gold rounded-xl text-sm font-mono text-white focus:outline-none focus:border-gold">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-xs font-semibold text-gray-300 mb-1">วันที่</label><input type="date" id="custDate" required class="w-full px-3 py-3 bg-darkbg border border-gold rounded-xl text-xs text-white focus:outline-none"></div>
+                    <div><label class="block text-xs font-semibold text-gray-300 mb-1">เวลา</label><input type="time" id="custTime" required class="w-full px-3 py-3 bg-darkbg border border-gold rounded-xl text-xs text-white focus:outline-none"></div>
+                </div>
+                <div><label class="block text-xs font-semibold text-gray-300 mb-1">รายละเอียดเพิ่มเติม</label><textarea id="custNote" rows="2" placeholder="เช่น เน้นนวดบ่าไหล่" class="w-full px-4 py-3 bg-darkbg border border-gold rounded-xl text-sm text-white focus:outline-none"></textarea></div>
+
+                <div class="border-t border-gold pt-4 space-y-4">
+                    <div class="text-xs font-bold text-gold font-display tracking-widest uppercase">ช่องทางการชำระเงิน</div>
+                    <div class="flex gap-4 bg-panelbg p-4 rounded-xl border border-gold items-center">
+                        <img id="bookingQrCodeDisplay" src="" class="w-24 h-24 rounded-lg bg-white p-1 object-contain shadow-md" alt="QR Code">
+                        <div class="text-xs space-y-1.5 flex-1">
+                            <p class="text-gray-300 font-bold">สแกนจ่ายผ่าน PromptPay / โอนเงิน</p>
+                            <div class="text-gray-400">
+                                <p>ธนาคาร: <span id="payBankName" class="text-white"></span></p>
+                                <p>เลขบัญชี: <span id="payAccNum" class="text-white"></span></p>
+                                <p>ชื่อ: <span id="payAccName" class="text-white"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">แนบสลิปโอนเงิน (บังคับ)</label>
+                        <input type="file" id="slipInput" accept="image/*" required class="w-full text-xs text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-gold/20 file:text-gold hover:file:bg-gold hover:file:text-black transition-all cursor-pointer border border-gold bg-darkbg">
+                        <div id="slipPreview" class="mt-2 text-xs text-green-400 font-bold"></div>
+                    </div>
+                </div>
+                <button type="submit" id="submitBtn" class="w-full py-4 btn-gold font-bold rounded-xl shadow-lg mt-2 transition-transform active:scale-95">ยืนยันการจอง</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="bg-cardbg border border-gold rounded-2xl max-w-sm w-full p-8 text-center space-y-5 shadow-2xl animate-fade">
+            <div class="w-20 h-20 bg-green-500/10 text-green-400 border border-green-500/30 rounded-full flex items-center justify-center mx-auto text-4xl"><i class="fa-solid fa-check"></i></div>
+            <h3 class="text-xl font-bold text-white font-display">จองสำเร็จ!</h3>
+            <p class="text-sm text-gray-300 leading-relaxed">ทางร้านได้รับข้อมูลคิวและสลิปของคุณแล้ว จะติดต่อกลับเพื่อยืนยันอีกครั้งครับ 🙏</p>
+            <button onclick="document.getElementById('successModal').classList.add('hidden')" class="w-full py-3 btn-gold font-bold rounded-xl">ตกลง</button>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="bg-cardbg border border-gold rounded-2xl max-w-sm w-full p-8 space-y-5 relative shadow-2xl animate-fade">
+            <button onclick="document.getElementById('authModal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-gold"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center mx-auto text-gold border border-gold mb-2"><i class="fa-solid fa-lock"></i></div>
+                <h3 id="authModalTitle" class="text-lg font-bold text-white font-display">เข้าสู่ระบบ</h3>
+                <p id="authStepBadge" class="text-xs text-gold font-mono">ขั้นตอนที่ 1</p>
+            </div>
+            <div class="space-y-4">
+                <input type="password" id="authInputPass" placeholder="กรอกรหัสผ่าน..." class="w-full px-4 py-3 bg-darkbg border border-gold rounded-xl text-center text-white font-mono focus:border-gold focus:outline-none">
+                <button onclick="window.app.submitAuthStep()" class="w-full py-3 btn-gold font-bold rounded-xl">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Staff Dashboard -->
+    <div id="staffDashboard" class="fixed inset-0 z-50 bg-darkbg overflow-y-auto p-4 hidden">
+        <div class="max-w-5xl mx-auto space-y-6 animate-fade">
+            <div class="flex justify-between items-center bg-cardbg p-5 rounded-2xl border border-gold shadow-lg">
+                <div>
+                    <h2 class="text-lg font-bold text-white font-display tracking-wide"><i class="fa-solid fa-clipboard-list text-gold mr-2"></i>ระบบรับลูกค้า (Staff)</h2>
+                    <span class="text-[10px] text-green-400 bg-green-400/10 px-2 py-0.5 rounded-full mt-1 inline-block"><i class="fa-solid fa-circle text-[8px] animate-pulse mr-1"></i>Realtime Sync Active</span>
+                </div>
+                <button onclick="document.getElementById('staffDashboard').classList.add('hidden')" class="px-5 py-2.5 bg-red-900/20 text-red-400 border border-red-500/30 rounded-xl text-xs font-semibold hover:bg-red-900/40 transition"><i class="fa-solid fa-xmark mr-1"></i> ปิด</button>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-cardbg p-5 rounded-2xl border border-gold relative"><span class="text-xs text-gray-400">คิวทั้งหมด</span><div id="staffTotalQueue" class="text-3xl font-bold text-gold font-mono mt-1">0</div></div>
+                <div class="bg-cardbg p-5 rounded-2xl border border-yellow-500/30 relative"><span class="text-xs text-gray-400">รอรับบริการ</span><div id="staffPendingQueue" class="text-3xl font-bold text-yellow-400 font-mono mt-1">0</div></div>
+                <div class="bg-cardbg p-5 rounded-2xl border border-green-500/30 relative"><span class="text-xs text-gray-400">เสร็จสิ้น</span><div id="staffCompletedQueue" class="text-3xl font-bold text-green-400 font-mono mt-1">0</div></div>
+                <div class="bg-cardbg p-5 rounded-2xl border border-blue-500/30 relative"><span class="text-xs text-gray-400">รายได้รวม</span><div id="staffTotalRevenue" class="text-3xl font-bold text-blue-400 font-mono mt-1">0 ฿</div></div>
+            </div>
+            <div class="bg-cardbg p-5 rounded-2xl border border-gold shadow-lg">
+                <h3 class="text-sm font-bold text-gold border-b border-gold pb-3 mb-4"><i class="fa-solid fa-list text-gold mr-2"></i>รายการจองล่าสุด</h3>
+                <div id="staffOrderList" class="space-y-3 max-h-[60vh] overflow-y-auto pr-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="fixed inset-0 z-50 bg-darkbg overflow-hidden flex flex-col md:flex-row hidden animate-fade">
+        <div class="w-full md:w-64 bg-cardbg border-r border-gold flex flex-col h-full flex-shrink-0">
+            <div class="p-6 border-b border-gold">
+                <h2 class="text-xl font-display font-bold gold-text tracking-widest">ARISA ADMIN</h2>
+                <p class="text-[10px] text-gray-500 mt-1">Premium CMS</p>
+            </div>
+            <div class="flex-1 overflow-y-auto py-4 flex flex-row md:flex-col overflow-x-auto md:overflow-x-hidden space-x-2 md:space-x-0 md:space-y-1 px-3 md:px-0 no-scrollbar">
+                <button onclick="window.app.switchTab('general')" id="tab-general" class="tab-btn active w-full text-left px-6 py-3.5 text-sm font-medium text-gray-400 flex items-center gap-3 whitespace-nowrap"><i class="fa-solid fa-store w-5 text-center"></i> ข้อมูลร้าน & ธีม</button>
+                <button onclick="window.app.switchTab('courses')" id="tab-courses" class="tab-btn w-full text-left px-6 py-3.5 text-sm font-medium text-gray-400 flex items-center gap-3 whitespace-nowrap"><i class="fa-solid fa-spa w-5 text-center"></i> จัดการคอร์ส</button>
+                <button onclick="window.app.switchTab('gallery')" id="tab-gallery" class="tab-btn w-full text-left px-6 py-3.5 text-sm font-medium text-gray-400 flex items-center gap-3 whitespace-nowrap"><i class="fa-solid fa-images w-5 text-center"></i> จัดการรูปภาพ</button>
+                <button onclick="window.app.switchTab('layout')" id="tab-layout" class="tab-btn w-full text-left px-6 py-3.5 text-sm font-medium text-gray-400 flex items-center gap-3 whitespace-nowrap"><i class="fa-solid fa-layer-group w-5 text-center"></i> จัดหน้าเว็บ (UI)</button>
+                <button onclick="window.app.switchTab('payment')" id="tab-payment" class="tab-btn w-full text-left px-6 py-3.5 text-sm font-medium text-gray-400 flex items-center gap-3 whitespace-nowrap"><i class="fa-solid fa-qrcode w-5 text-center"></i> รับเงิน/QR</button>
+                <button onclick="window.app.switchTab('security')" id="tab-security" class="tab-btn w-full text-left px-6 py-3.5 text-sm font-medium text-gray-400 flex items-center gap-3 whitespace-nowrap"><i class="fa-solid fa-shield-halved w-5 text-center"></i> รหัสผ่าน</button>
+                <div class="hidden md:block w-full h-px bg-gold/30 my-2"></div>
+                <button onclick="window.app.switchTab('system')" id="tab-system" class="tab-btn w-full text-left px-6 py-3.5 text-sm font-medium text-red-400 flex items-center gap-3 whitespace-nowrap"><i class="fa-solid fa-gear w-5 text-center"></i> ตั้งค่า Cloud</button>
+            </div>
+            <div class="p-4 border-t border-gold">
+                <button onclick="document.getElementById('adminDashboard').classList.add('hidden')" class="w-full py-2.5 bg-red-900/20 text-red-400 border border-red-500/30 rounded-xl text-xs font-semibold hover:bg-red-900/40 transition"><i class="fa-solid fa-right-from-bracket mr-1"></i> ออก</button>
+            </div>
+        </div>
+
+        <div class="flex-1 h-full overflow-y-auto p-4 md:p-8 relative">
+            <div class="max-w-4xl mx-auto pb-24">
+                <div id="content-general" class="tab-content space-y-4">
+                    <h3 class="text-xl font-display font-bold text-white mb-6 border-b border-gold pb-2">ตั้งค่าข้อมูลร้าน & ธีม</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label class="text-xs text-gray-400 mb-1 block">ชื่อร้าน</label><input type="text" id="cfgShopName" class="w-full p-3 bg-panelbg border border-gold rounded-xl text-white text-sm focus:outline-none"></div>
+                        <div><label class="text-xs text-gray-400 mb-1 block">ชื่อรอง (ภาษาอังกฤษ)</label><input type="text" id="cfgShopSubTitle" class="w-full p-3 bg-panelbg border border-gold rounded-xl text-white text-sm focus:outline-none"></div>
+                        <div class="md:col-span-2 border-t border-gold/30 pt-4 mt-2">
+                            <h4 class="text-sm font-bold text-gold mb-3">ธีมสีร้านค้า</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="text-xs text-gray-400 mb-1 block">สีหลัก</label><input type="color" id="cfgThemePrimary" class="w-full h-10 p-1 bg-panelbg border border-gold rounded-xl cursor-pointer"></div>
+                                <div><label class="text-xs text-gray-400 mb-1 block">สีพื้นหลังเว็บ</label><input type="color" id="cfgThemeBg" class="w-full h-10 p-1 bg-panelbg border border-gold rounded-xl cursor-pointer"></div>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2 border-t border-gold/30 pt-4 mt-2">
+                            <h4 class="text-sm font-bold text-gold mb-3">โลโก้ & ข้อมูลติดต่อ</h4>
+                            <div class="mb-3"><label class="text-xs text-gray-400 mb-1 block">ตัวอักษรโลโก้ หรือ URL รูปภาพโลโก้</label><input type="text" id="cfgLogoText" class="w-full p-3 bg-panelbg border border-gold rounded-xl text-white text-sm focus:outline-none" placeholder="อ (หรือวาง URL รูปภาพ)"></div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div><label class="text-xs text-gray-400 mb-1 block">เบอร์โทรหลัก</label><input type="text" id="cfgTel1" class="w-full p-3 bg-panelbg border border-gold rounded-xl text-white text-sm"></div>
+                                <div><label class="text-xs text-gray-400 mb-1 block">ลิงก์ Facebook</label><input type="text" id="cfgFbUrl" class="w-full p-3 bg-panelbg border border-gold rounded-xl text-white text-sm"></div>
+                                <div><label class="text-xs text-gray-400 mb-1 block">LINE ID</label><input type="text" id="cfgLineId" class="w-full p-3 bg-panelbg border border-gold rounded-xl text-white text-sm"></div>
+                                <div><label class="text-xs text-gray-400 mb-1 block">ลิงก์ Google Maps GPS</label><input type="text" id="cfgGps" class="w-full p-3 bg-panelbg border border-gold rounded-xl text-white text-sm"></div>
+                            </div>
+                            <div class="mt-3"><label class="text-xs text-gray-400 mb-1 block">ที่อยู่ร้าน</label><input type="text" id="cfgAddress" class="w-full p-3 bg-panelbg border border-gold rounded-xl text-white text-sm"></div>
+                        </div>
+                        <div class="md:col-span-2 border-t border-gold/30 pt-4 mt-2">
+                            <h4 class="text-sm font-bold text-gold mb-3">หน้าต่างต้อนรับ (Popup)</h4>
+                            <label class="flex items-center gap-2 mb-3 cursor-pointer"><input type="checkbox" id="cfgPopupOn" class="w-4 h-4 accent-[var(--primary)]"><span class="text-sm text-white">เปิดใช้งาน Popup ต้อนรับ</span></label>
+                            <div class="grid grid-cols-1 gap-3">
+                                <div><label class="text-xs text-gray-400 mb-1 block">หัวข้อ Popup</label><input type="text" id="cfgPopupTitle" class="w-full p-3 bg-panelbg border border-gold rounded-xl text-white text-sm"></div>
+                                <div><label class="text-xs text-gray-400 mb-1 block">ข้อความ Popup</label><textarea id="cfgPopupText" rows="2" class="w-full p-3 bg-panelbg border border-gold rounded-xl text-white text-sm"></textarea></div>
+                                <div>
+                                    <label class="text-xs text-gray-400 mb-2 block">รูปภาพ Popup</label>
+                                    <div class="flex items-center gap-4">
+                                        <img id="adminPopupImgPreview" src="" class="w-24 h-24 object-cover rounded-xl border border-gold hidden">
+                                        <input type="file" accept="image/*" id="popupImgInput" class="w-full text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-gold/20 file:text-gold hover:file:bg-gold hover:file:text-black cursor-pointer border border-gold bg-panelbg">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-courses" class="tab-content hidden">
+                    <div class="flex justify-between items-center mb-6 border-b border-gold pb-2">
+                        <h3 class="text-xl font-display font-bold text-white">จัดการคอร์สนวด</h3>
+                        <button onclick="window.app.openCourseEditor()" class="px-4 py-2 bg-gold/10 border border-gold text-gold hover:bg-gold hover:text-black rounded-xl font-bold text-xs transition-all"><i class="fa-solid fa-plus mr-1"></i> เพิ่มคอร์ส</button>
+                    </div>
+                    <div id="courseEditor" class="hidden bg-panelbg p-5 rounded-2xl border border-gold mb-6 shadow-xl relative">
+                        <h4 id="editorTitle" class="font-bold text-gold mb-4 text-sm"><i class="fa-solid fa-pen-to-square mr-2"></i>เพิ่มคอร์สใหม่</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><label class="text-xs text-gray-400 mb-1 block">ชื่อคอร์ส</label><input type="text" id="ceditName" class="w-full p-3 bg-darkbg border border-gold rounded-xl text-white text-sm focus:outline-none"></div>
+                            <div>
+                                <label class="text-xs text-gray-400 mb-1 block">รูปภาพคอร์ส</label>
+                                <div class="flex items-center gap-3">
+                                    <img id="ceditImgPreview" src="" class="w-12 h-12 object-cover rounded-lg border border-gold hidden">
+                                    <input type="file" accept="image/*" id="courseImgInput" class="w-full text-xs text-gray-400 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-gold/20 file:text-gold hover:file:bg-gold hover:file:text-black cursor-pointer border border-gold bg-darkbg">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 md:col-span-2">
+                                <div><label class="text-xs text-gray-400 mb-1 block">ราคา 1 ชม. (เว้นว่างหากไม่มี)</label><input type="number" id="ceditP1" class="w-full p-3 bg-darkbg border border-gold rounded-xl text-white text-sm" placeholder="เช่น 300" min="0"></div>
+                                <div><label class="text-xs text-gray-400 mb-1 block">ราคา 2 ชม. (เว้นว่างหากไม่มี)</label><input type="number" id="ceditP2" class="w-full p-3 bg-darkbg border border-gold rounded-xl text-white text-sm" placeholder="เช่น 600" min="0"></div>
+                            </div>
+                            <div class="md:col-span-2"><label class="text-xs text-gray-400 mb-1 block">รายละเอียด</label><textarea id="ceditDesc" rows="2" class="w-full p-3 bg-darkbg border border-gold rounded-xl text-white text-sm"></textarea></div>
+                        </div>
+                        <div class="flex justify-end space-x-2 mt-4 pt-4 border-t border-gold/50">
+                            <button onclick="document.getElementById('courseEditor').classList.add('hidden')" class="px-5 py-2.5 bg-gray-800 text-white rounded-xl font-bold text-xs">ยกเลิก</button>
+                            <button onclick="window.app.saveCourse()" class="px-5 py-2.5 bg-gold text-black rounded-xl font-bold text-xs">บันทึกคอร์ส</button>
+                        </div>
+                    </div>
+                    <div id="adminCourseList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                </div>
+
+                <div id="content-gallery" class="tab-content hidden space-y-4">
+                    <h3 class="text-xl font-display font-bold text-white mb-6 border-b border-gold pb-2">จัดการรูปภาพบรรยากาศร้าน</h3>
+                    <div class="bg-blue-900/10 text-blue-300 p-4 rounded-xl mb-4 border border-blue-500/20 text-xs flex gap-3 items-center"><i class="fa-solid fa-circle-info text-lg"></i> รองรับเฉพาะรูปภาพ (ระบบบีบอัดอัตโนมัติ)</div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold text-gold mb-2">เพิ่มรูปภาพใหม่</label>
+                        <input type="file" accept="image/*" id="galleryInput" class="w-full text-xs text-gray-400 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-gold/20 file:text-gold hover:file:bg-gold hover:file:text-black cursor-pointer border border-gold bg-panelbg">
+                    </div>
+                    <div id="adminGalleryList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+
+                <div id="content-layout" class="tab-content hidden space-y-4">
+                    <h3 class="text-xl font-display font-bold text-white mb-2 border-b border-gold pb-2">จัดหน้าเว็บ (UI Builder)</h3>
+                    <p class="text-xs text-gray-400 mb-4">ลากเพื่อสลับตำแหน่ง หรือใช้ปุ่มลูกศรขึ้น/ลง</p>
+                    <div id="layoutList" class="space-y-2 mb-6"></div>
+                    <div class="border-t border-gold/30 pt-4">
+                        <button onclick="window.app.addCustomSection()" class="w-full py-3 border border-dashed border-gold text-gold hover:bg-gold/10 rounded-xl text-sm font-bold transition"><i class="fa-solid fa-plus mr-1"></i> เพิ่มกล่องข้อความ / รูปภาพ กำหนดเอง</button>
+                    </div>
+                    <div id="customBlocksEditor" class="mt-4 space-y-4"></div>
+                </div>
+
+                <div id="content-payment" class="tab-content hidden space-y-4">
+                    <h3 class="text-xl font-display font-bold text-white mb-6 border-b border-gold pb-2">จัดการช่องทางรับเงิน</h3>
+                    <div class="bg-yellow-900/10 text-yellow-300 p-4 rounded-xl mb-4 border border-yellow-500/20 text-xs flex gap-3 items-center"><i class="fa-solid fa-triangle-exclamation text-lg"></i> อัปโหลดรูป QR Code รับเงินจริงจากแอปธนาคาร</div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="text-xs text-gray-400 mb-2 block">อัปโหลดรูป QR Code รับเงินจริง</label>
+                            <div class="flex items-center gap-4">
+                                <img id="adminQrPreview" src="" class="w-32 h-32 object-contain rounded-xl border border-gold bg-white p-2 hidden">
+                                <input type="file" accept="image/*" id="qrImgInput" class="w-full text-xs text-gray-400 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-gold/20 file:text-gold hover:file:bg-gold hover:file:text-black cursor-pointer border border-gold bg-panelbg">
+                            </div>
+                        </div>
+                        <div><label class="text-xs text-gray-400 mb-1 block">ชื่อธนาคาร</label><input type="text" id="cfgPayBank" class="w-full p-3 bg-panelbg border border-gold rounded-xl text-white text-sm"></div>
+                        <div><label class="text-xs text-gray-400 mb-1 block">เลขบัญชี</label><input type="text" id="cfgPayAcc" class="w-full p-3 bg-panelbg border border-gold rounded-xl text-white text-sm font-mono"></div>
+                        <div class="md:col-span-2"><label class="text-xs text-gray-400 mb-1 block">ชื่อบัญชี</label><input type="text" id="cfgPayName" class="w-full p-3 bg-panelbg border border-gold rounded-xl text-white text-sm"></div>
+                    </div>
+                </div>
+
+                <div id="content-security" class="tab-content hidden space-y-4">
+                    <h3 class="text-xl font-display font-bold text-white mb-6 border-b border-gold pb-2">จัดการรหัสผ่านระบบ</h3>
+                    <div class="bg-red-900/10 text-red-300 p-4 rounded-xl border border-red-500/20 text-xs mb-4"><i class="fa-solid fa-exclamation-triangle mr-2"></i><strong>คำเตือน:</strong> จำรหัสใหม่ให้ดี! ถ้าลืมจะไม่สามารถเข้าแอดมินได้</div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-panelbg p-4 rounded-2xl border border-gold">
+                            <h4 class="font-bold text-gold mb-3 text-sm"><i class="fa-solid fa-user-tie mr-2"></i>พนักงาน (Staff)</h4>
+                            <div class="space-y-3">
+                                <div><label class="text-xs text-gray-400 mb-1 block">รหัสชั้นที่ 1</label><input type="text" id="cfgStaffP1" class="w-full p-3 bg-darkbg border border-gold rounded-xl text-white text-sm"></div>
+                                <div><label class="text-xs text-gray-400 mb-1 block">รหัสชั้นที่ 2</label><input type="text" id="cfgStaffP2" class="w-full p-3 bg-darkbg border border-gold rounded-xl text-white text-sm"></div>
+                            </div>
+                        </div>
+                        <div class="bg-panelbg p-4 rounded-2xl border border-gold">
+                            <h4 class="font-bold text-gold mb-3 text-sm"><i class="fa-solid fa-user-shield mr-2"></i>แอดมิน (Admin)</h4>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div><label class="text-xs text-gray-400 mb-1 block">ชั้น 1</label><input type="text" id="cfgAdminP1" class="w-full p-3 bg-darkbg border border-gold rounded-xl text-white text-sm"></div>
+                                <div><label class="text-xs text-gray-400 mb-1 block">ชั้น 2</label><input type="text" id="cfgAdminP2" class="w-full p-3 bg-darkbg border border-gold rounded-xl text-white text-sm"></div>
+                                <div><label class="text-xs text-gray-400 mb-1 block">ชั้น 3</label><input type="text" id="cfgAdminP3" class="w-full p-3 bg-darkbg border border-gold rounded-xl text-white text-sm"></div>
+                                <div><label class="text-xs text-gray-400 mb-1 block">ชั้น 4</label><input type="text" id="cfgAdminP4" class="w-full p-3 bg-darkbg border border-gold rounded-xl text-white text-sm"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-system" class="tab-content hidden space-y-4">
+                    <h3 class="text-xl font-display font-bold text-white mb-6 border-b border-gold pb-2">ตั้งค่าฐานข้อมูล Cloud</h3>
+                    <div class="bg-blue-900/10 text-blue-300 p-4 rounded-xl border border-blue-500/20 text-xs mb-4">
+                        <strong>คำแนะนำ:</strong> Firebase Console → Project Settings → Your apps → Web app → คัดลอก Object Config (ที่เริ่มด้วย <code>{</code> และจบด้วย <code>}</code>) มาวางในช่องด้านล่าง
+                    </div>
+                    <textarea id="firebaseConfigInput" rows="8" class="w-full p-4 bg-darkbg border border-gold rounded-xl text-green-400 font-mono text-xs focus:outline-none" placeholder='{ "apiKey": "...", "authDomain": "...", "projectId": "...", "storageBucket": "...", "messagingSenderId": "...", "appId": "..." }'></textarea>
+                    <button onclick="window.app.connectDatabase()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition"><i class="fa-solid fa-plug mr-2"></i> เชื่อมต่อฐานข้อมูล</button>
+                    <div id="dbStatus" class="text-center mt-2 font-bold text-sm"></div>
+                </div>
+            </div>
+            
+            <div class="fixed bottom-0 right-0 left-0 md:left-64 p-4 bg-darkbg/90 backdrop-blur border-t border-gold flex justify-end z-50">
+                <button onclick="window.app.saveAllAdminSettings()" id="saveAdminBtn" class="px-8 py-3.5 btn-gold font-bold rounded-xl shadow-lg text-sm flex items-center"><i class="fa-solid fa-cloud-arrow-up mr-2 text-lg"></i> บันทึกการตั้งค่าทั้งหมด</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slip Modal -->
+    <div id="slipModal" class="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 hidden" onclick="this.classList.add('hidden')">
+        <div class="relative max-w-lg w-full">
+            <button class="absolute -top-12 right-0 w-10 h-10 bg-white/20 text-white rounded-full z-10"><i class="fa-solid fa-xmark"></i></button>
+            <img id="slipImg" src="" class="w-full rounded-xl">
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, query, orderBy, limit, updateDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const DEFAULT_CONFIG = {
+            shopName: "นวดเพื่อสุขภาพอริษา", shopSubTitle: "ARISA HEALTH MASSAGE", logoText: "อ",
+            address: "85/1 หมู่ 1 ต.ท่าข้าม อ.ปะนาเระ จ.ปัตตานี", tel1: "065-647-8455", tel2: "093-129-4773",
+            hours: "10:00 - 22:00 น.", gpsUrl: "https://maps.google.com/?q=85/1+หมู่+1+ต.ท่าข้าม+อ.ปะนาเระ+จ.ปัตตานี",
+            fbUrl: "https://www.facebook.com/share/1Df8r9vzj6/?mibextid=wwXIfr", lineId: "arisa858",
+            themePrimary: "#D4AF37", themeBg: "#0f0f11",
+            payBankName: "ธนาคารออมสิน", payAccNum: "020494205808", payAccName: "นางอริษา ศรีบุญเรือง",
+            qrCodeImg: "",
+            popupOn: true, popupImg: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=800",
+            popupTitle: "ยินดีต้อนรับสู่ อริษา นวดเพื่อสุขภาพ", popupText: "ผ่อนคลายความเหนื่อยล้าด้วยบริการนวดแผนไทยระดับพรีเมียม",
+            staffPass1: "123123", staffPass2: "321321",
+            adminPass1: "Ratthanan Bunnam", adminPass2: "Kiw", adminPass3: "RATTHANAN BUNNAM KIW", adminPass4: "201054",
+            sections: [
+                { id:'hero', type:'hero', visible:true },
+                { id:'courses', type:'courses', visible:true },
+                { id:'gallery', type:'gallery', visible:true },
+                { id:'info', type:'info', visible:true },
+                { id:'contact', type:'contact', visible:true }
+            ],
+            customBlocks: [],
+            galleryImages: []
+        };
+
+        const DEFAULT_COURSES = [
+            { id:1, name:"นวดไทย (Thai Massage)", desc:"ผ่อนคลายกล้ามเนื้อด้วยศาสตร์แผนไทยโบราณ", price1h:300, price2h:600, img:"https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=800" },
+            { id:2, name:"นวดเท้า (Foot Massage)", desc:"กระตุ้นจุดฝ่าเท้าเพื่อสุขภาพที่ดี", price1h:300, price2h:600, img:"https://images.unsplash.com/photo-1519823551278-64ac92734fb1?q=80&w=800" },
+            { id:3, name:"นวดไทยรีดเส้น (Thai Deep Tissue)", desc:"คลายจุดตึงและเส้นเอ็นที่ติดขัด", price1h:450, price2h:850, img:"https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?q=80&w=800" },
+            { id:4, name:"นวดน้ำมัน (Oil Massage)", desc:"ผ่อนคลายด้วยน้ำมันนวดบำรุงผิว", price1h:450, price2h:800, img:"https://images.unsplash.com/photo-1515377905703-c4788e51af15?q=80&w=800" },
+            { id:5, name:"นวดอโรม่า (Aromatherapy Massage)", desc:"ผ่อนคลายลึกถึงระดับจิตใจด้วยกลิ่นหอม", price1h:500, price2h:900, img:"https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=800" },
+            { id:6, name:"นวดคอ บ่า ไหล่", desc:"บรรเทาอาการออฟฟิศซินโดรม", price1h:350, price2h:700, img:"https://images.unsplash.com/photo-1519823551278-64ac92734fb1?q=80&w=800" },
+            { id:7, name:"นวดประคบ + นวดอโรม่า", desc:"ใช้ลูกประคบสมุนไพรไทยร้อนๆ คลายกล้ามเนื้อ", price1h:null, price2h:900, img:"https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?q=80&w=800" },
+            { id:8, name:"นวดไทย + อโรม่า", desc:"ผสมผสานสองศาสตร์การนวดเพื่อการผ่อนคลายสูงสุด", price1h:null, price2h:750, img:"https://images.unsplash.com/photo-1515377905703-c4788e51af15?q=80&w=800" },
+            { id:9, name:"นวดไทยยืดเส้น + อโรม่า", desc:"ยืดเส้นยืดสาย ควบคู่การผ่อนคลาย", price1h:null, price2h:850, img:"https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=800" },
+            { id:10, name:"นวดออยล์ร้อน (Hot Oil Massage)", desc:"น้ำมันร้อนช่วยให้กล้ามเนื้อคลายตัวได้ดียิ่งขึ้น", price1h:500, price2h:999, img:"https://images.unsplash.com/photo-1519823551278-64ac92734fb1?q=80&w=800" }
+        ];
+
+        let firebaseApp = null;
+        let db = null;
+        let unsubscribeOrders = null;
+        let unsubscribeConfig = null;
+
+        let appConfig = safeClone(DEFAULT_CONFIG);
+        let draftConfig = safeClone(DEFAULT_CONFIG);
+        let coursesList = safeClone(DEFAULT_COURSES);
+        let draftCourses = safeClone(DEFAULT_COURSES);
+        let ordersList = [];
+        let knownOrderIds = new Set();
+        let isFirstOrderLoad = true;
+        let selectedCourse = null;
+        let selectedDuration = 1;
+        let selectedPrice = 0;
+        let currentPayType = 'full';
+        let uploadedSlipData = null;
+        let authTarget = '';
+        let authStep = 1;
+        let editingCourseId = null;
+        let currentCourseImgBase64 = null;
+        let audioCtx = null;
+
+        function safeClone(o) { try { return JSON.parse(JSON.stringify(o)); } catch(e) { return o; } }
+        function $(id) { return document.getElementById(id); }
+        function setText(id, t) { const e = $(id); if(e) e.textContent = t == null ? '' : String(t); }
+        function setSrc(id, s) { const e = $(id); if(e) e.src = s || ''; }
+        function setVal(id, v) { const e = $(id); if(e) e.value = v == null ? '' : String(v); }
+        function getVal(id) { const e = $(id); return e ? e.value : ''; }
+        function getChk(id) { const e = $(id); return e ? e.checked : false; }
+
+        function showToast(msg) {
+            const t = $('toast'); if(!t) return;
+            $('toastMsg').textContent = msg;
+            t.classList.add('show');
+            clearTimeout(window.__toastT);
+            window.__toastT = setTimeout(() => t.classList.remove('show'), 3200);
+        }
+
+        function playBeep() {
+            try {
+                if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+                [0, 0.2, 0.4].forEach(delay => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.type = 'sine'; osc.frequency.value = 880;
+                    const start = audioCtx.currentTime + delay;
+                    gain.gain.setValueAtTime(0.0001, start);
+                    gain.gain.exponentialRampToValueAtTime(0.3, start + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.15);
+                    osc.start(start); osc.stop(start + 0.18);
+                });
+            } catch(e) { console.warn('Audio:', e); }
+        }
+
+        function compressImage(file, maxSize, quality, callback) {
+            if(!file) return callback(null);
+            if(!file.type.startsWith('image/')) return callback(null);
+            const reader = new FileReader();
+            reader.onerror = () => callback(null);
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onerror = () => callback(null);
+                img.onload = () => {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        let w = img.width, h = img.height;
+                        if(w > h) { if(w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize; } }
+                        else { if(h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize; } }
+                        canvas.width = w; canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, w, h);
+                        ctx.drawImage(img, 0, 0, w, h);
+                        callback(canvas.toDataURL('image/jpeg', quality));
+                    } catch(err) { callback(null); }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function escapeHtml(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        function applyTheme(cfg) {
+            try {
+                document.documentElement.style.setProperty('--primary', cfg.themePrimary || '#D4AF37');
+                document.documentElement.style.setProperty('--bg', cfg.themeBg || '#0f0f11');
+            } catch(e) {}
+        }
+
+        function trySaveLS(key, value) {
+            try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+            catch(e) { console.error('localStorage error:', e); return false; }
+        }
+        function tryGetLS(key, def) {
+            try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; }
+            catch(e) { return def; }
+        }
+
+        // ============ RENDER ============
+        function renderAppUI() {
+            try {
+                applyTheme(appConfig);
+                document.title = appConfig.shopName;
+                document.querySelectorAll('.shop-title-text').forEach(el => el.textContent = appConfig.shopName);
+                document.querySelectorAll('.shop-subtitle-text').forEach(el => el.textContent = appConfig.shopSubTitle);
+
+                const logoEl = $('headerLogo');
+                if(logoEl) {
+                    const lt = appConfig.logoText || 'อ';
+                    if(lt.startsWith('http') || lt.startsWith('data:image')) {
+                        logoEl.innerHTML = `<img src="${escapeHtml(lt)}" class="w-full h-full object-cover rounded-full" alt="logo">`;
+                    } else { logoEl.textContent = lt; }
+                }
+
+                if(appConfig.popupOn) {
+                    const popupImg = $('popupImg');
+                    if(popupImg && appConfig.popupImg) popupImg.style.backgroundImage = `url('${appConfig.popupImg}')`;
+                    setText('popupTitle', appConfig.popupTitle);
+                    setText('popupText', appConfig.popupText);
+                    const popup = $('welcomePopup'); if(popup) popup.classList.remove('hidden');
+                } else {
+                    const popup = $('welcomePopup'); if(popup) popup.classList.add('hidden');
+                }
+
+                const qrImg = appConfig.qrCodeImg || `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(appConfig.payAccNum || 'N/A')}`;
+                setSrc('bookingQrCodeDisplay', qrImg);
+                setText('payBankName', appConfig.payBankName);
+                setText('payAccNum', appConfig.payAccNum);
+                setText('payAccName', appConfig.payAccName);
+
+                const main = $('mainContent'); if(!main) return;
+
+                let sections = Array.isArray(appConfig.sections) ? appConfig.sections : safeClone(DEFAULT_CONFIG.sections);
+                if(sections.length === 0) sections = safeClone(DEFAULT_CONFIG.sections);
+
+                const htmlParts = [];
+                sections.filter(s => s && s.visible !== false).forEach((sec, index) => {
+                    const delay = index * 40;
+                    let html = '';
+                    try {
+                        if(sec.type === 'hero') {
+                            html = `<section class="relative rounded-3xl overflow-hidden p-8 md:p-12 text-center bg-cover bg-center mt-4 border border-gold shadow-[0_10px_30px_rgba(0,0,0,0.5)] animate-fade" style="background-image: url('${escapeHtml(appConfig.popupImg || '')}'); animation-delay: ${delay}ms;"><div class="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-[var(--bg)]"></div><div class="relative z-10 space-y-6 max-w-2xl mx-auto"><div class="w-16 h-16 mx-auto rounded-full border border-gold flex items-center justify-center text-gold text-2xl bg-black/50 backdrop-blur-sm shadow-[0_0_20px_rgba(212,175,55,0.3)] mb-4"><i class="fa-solid fa-spa"></i></div><h2 class="text-3xl md:text-5xl font-display font-bold gold-text tracking-wider drop-shadow-lg">${escapeHtml(appConfig.shopName)}</h2><p class="text-gray-300 text-sm md:text-base leading-relaxed">${escapeHtml(appConfig.popupText)}</p><div class="pt-4"><a href="#courses-sec" class="inline-block px-8 py-3.5 btn-gold font-bold rounded-full text-sm shadow-[0_5px_20px_rgba(212,175,55,0.4)]">จองคิวเลย</a></div></div></section>`;
+                        }
+                        else if(sec.type === 'courses') {
+                            const cards = coursesList.map((c, i) => `<div class="rounded-2xl overflow-hidden flex flex-col bg-cardbg border border-gold/30 hover:border-gold transition-all duration-300 group animate-fade" style="animation-delay: ${delay + i*25}ms;"><div class="h-56 overflow-hidden relative"><img src="${escapeHtml(c.img || '')}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" alt=""><div class="absolute inset-0 bg-gradient-to-t from-[var(--card)] via-transparent to-transparent"></div></div><div class="p-6 flex-grow flex flex-col justify-between relative z-10 -mt-10"><div><h4 class="font-bold text-white text-lg md:text-xl font-display mb-2 drop-shadow-md">${escapeHtml(c.name)}</h4><p class="text-xs text-gray-400 mb-4 line-clamp-2">${escapeHtml(c.desc || '')}</p></div><div class="grid ${c.price1h && c.price2h ? 'grid-cols-2' : 'grid-cols-1'} gap-3 mt-auto">${c.price1h ? `<button onclick="window.app.openBooking(${c.id}, 1)" class="p-3 bg-black/40 backdrop-blur border border-gold rounded-xl text-gold hover:bg-gold hover:text-black transition-all text-center flex flex-col items-center justify-center shadow-lg"><span class="text-[10px] text-gray-400 mb-0.5">1 ชั่วโมง</span> <b class="text-base font-display">${c.price1h} ฿</b></button>` : ''}${c.price2h ? `<button onclick="window.app.openBooking(${c.id}, 2)" class="p-3 bg-black/40 backdrop-blur border border-gold rounded-xl text-gold hover:bg-gold hover:text-black transition-all text-center flex flex-col items-center justify-center shadow-lg"><span class="text-[10px] text-gray-400 mb-0.5">2 ชั่วโมง</span> <b class="text-base font-display">${c.price2h} ฿</b></button>` : ''}</div></div></div>`).join('');
+                            html = `<section id="courses-sec" class="space-y-6 mt-12"><div class="text-center mb-8 animate-fade" style="animation-delay: ${delay}ms;"><h3 class="text-2xl font-display font-bold gold-text inline-block border-b border-gold pb-2 px-8">คอร์สนวดของเรา</h3></div><div class="grid grid-cols-1 md:grid-cols-2 gap-6">${cards}</div></section>`;
+                        }
+                        else if(sec.type === 'gallery') {
+                            if(Array.isArray(appConfig.galleryImages) && appConfig.galleryImages.length > 0) {
+                                html = `<section class="space-y-6 mt-12 animate-fade" style="animation-delay: ${delay}ms;"><div class="text-center mb-8"><h3 class="text-2xl font-display font-bold gold-text inline-block border-b border-gold pb-2 px-8">บรรยากาศร้าน</h3></div><div class="grid grid-cols-1 gap-6">${appConfig.galleryImages.map(img => `<img src="${escapeHtml(img)}" class="w-full h-auto max-h-[600px] object-cover rounded-2xl border border-gold hover:opacity-90 transition cursor-pointer shadow-lg" loading="lazy" alt="">`).join('')}</div></section>`;
+                            }
+                        }
+                        else if(sec.type === 'info') {
+                            html = `<section class="glass rounded-2xl p-6 md:p-8 mt-12 border border-gold animate-fade" style="animation-delay: ${delay}ms;"><h3 class="text-xl font-display font-bold text-gold border-b border-gold pb-3 mb-4"><i class="fa-solid fa-notes-medical mr-3"></i>ข้อควรทราบก่อนรับบริการ</h3><ul class="text-sm text-gray-300 space-y-3 list-disc list-inside marker:text-gold"><li>ควรแจ้งพนักงานหากมีโรคประจำตัว หรืออาการเจ็บป่วย</li><li>หากรู้สึกเจ็บผิดปกติ กรุณาแจ้งพนักงานทันที</li><li>ควรดื่มน้ำสะอาดหลังการนวด</li><li>ไม่ควรรับบริการนวดติดต่อกันนานเกินไป</li></ul></section>`;
+                        }
+                        else if(sec.type === 'contact') {
+                            html = `<section class="glass rounded-2xl p-6 md:p-8 mt-12 mb-8 border border-gold animate-fade" style="animation-delay: ${delay}ms;"><h3 class="text-xl font-display font-bold text-gold border-b border-gold pb-3 mb-6"><i class="fa-solid fa-map-location-dot mr-3"></i>ติดต่อและเดินทาง</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div class="space-y-4 text-sm text-gray-300"><p class="flex items-start gap-3"><i class="fa-solid fa-store text-gold mt-1"></i> <span>${escapeHtml(appConfig.address)}</span></p><p class="flex items-center gap-3"><i class="fa-solid fa-clock text-gold"></i> <span>${escapeHtml(appConfig.hours)}</span></p><div class="flex flex-col gap-2 mt-2"><a href="tel:${escapeHtml(appConfig.tel1)}" class="flex items-center gap-3 text-gold font-mono text-lg hover:text-white transition"><i class="fa-solid fa-phone"></i> ${escapeHtml(appConfig.tel1)}</a><a href="tel:${escapeHtml(appConfig.tel2)}" class="flex items-center gap-3 text-gold font-mono text-lg hover:text-white transition"><i class="fa-solid fa-phone"></i> ${escapeHtml(appConfig.tel2)}</a></div><div class="flex gap-3 mt-4"><a href="${escapeHtml(appConfig.fbUrl)}" target="_blank" rel="noopener" class="flex-1 py-2 bg-[#1877F2] text-white text-center rounded-xl font-bold hover:bg-blue-600 transition"><i class="fa-brands fa-facebook mr-2"></i>Facebook</a><a href="https://line.me/ti/p/~${escapeHtml(appConfig.lineId)}" target="_blank" rel="noopener" class="flex-1 py-2 bg-[#06C755] text-white text-center rounded-xl font-bold hover:bg-green-600 transition"><i class="fa-brands fa-line mr-2"></i>LINE</a></div><a href="${escapeHtml(appConfig.gpsUrl)}" target="_blank" rel="noopener" class="mt-2 inline-flex items-center justify-center gap-2 w-full py-3 btn-gold font-bold rounded-xl shadow-lg"><i class="fa-solid fa-diamond-turn-right"></i> เปิดแผนที่นำทาง</a></div><div class="bg-black/30 rounded-xl border border-gold p-6 flex flex-col items-center justify-center text-center"><p class="text-xs text-gray-400 mb-4 tracking-widest uppercase">Scan to visit</p><div id="qrCodeContainer" class="bg-white p-3 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.1)]"></div></div></div></section>`;
+                        }
+                        else if(sec.type === 'custom') {
+                            const block = (appConfig.customBlocks || []).find(b => b.id === sec.id);
+                            if(block) {
+                                html = `<section class="glass rounded-2xl p-6 md:p-8 mt-12 border border-gold animate-fade" style="animation-delay: ${delay}ms;">${block.title ? `<h3 class="text-xl font-display font-bold text-gold border-b border-gold pb-3 mb-4">${escapeHtml(block.title)}</h3>` : ''}${block.content ? `<p class="text-gray-300 leading-relaxed whitespace-pre-wrap">${escapeHtml(block.content)}</p>` : ''}${block.image ? `<img src="${escapeHtml(block.image)}" class="w-full rounded-xl mt-4 border border-gold" alt="">` : ''}</section>`;
+                            }
+                        }
+                    } catch(err) { console.error('Section render error:', err); }
+                    if(html) htmlParts.push(html);
+                });
+
+                main.innerHTML = htmlParts.join('');
+
+                setTimeout(() => {
+                    const qrContainer = $('qrCodeContainer');
+                    if(qrContainer && window.QRCode) {
+                        qrContainer.innerHTML = '';
+                        try { new QRCode(qrContainer, { text: window.location.href.split('#')[0], width: 140, height: 140, colorDark: "#000000", colorLight: "#ffffff" }); }
+                        catch(e) { console.warn('QR:', e); }
+                    }
+                }, 100);
+            } catch(e) { console.error('Render error:', e); }
+        }
+
+        // ============ BOOKING ============
+        function openBooking(id, dur) {
+            const c = coursesList.find(x => x.id === id);
+            if(!c) return showToast('ไม่พบคอร์ส');
+            const price = dur === 1 ? c.price1h : c.price2h;
+            if(!price) return showToast('ไม่พบราคา');
+            selectedCourse = c; selectedDuration = dur; selectedPrice = price;
+            setText('modalCourseName', `${c.name} (${dur} ชั่วโมง)`);
+            setPayType('full');
+            const m = $('bookingModal'); if(m) m.classList.remove('hidden');
+            const d = $('custDate'); if(d) d.value = new Date().toISOString().split('T')[0];
+        }
+
+        function setPayType(type) {
+            if(!selectedPrice) return;
+            currentPayType = type;
+            const btnFull = $('btn-pay-full'), btnDeposit = $('btn-pay-deposit');
+            if(!btnFull || !btnDeposit) return;
+            if(type === 'full') {
+                btnFull.className = 'rounded-lg py-2 text-xs bg-gold text-black font-bold';
+                btnDeposit.className = 'rounded-lg py-2 text-xs border border-gold text-gray-400 hover:text-white';
+                setText('paymentTypeText', 'ยอดชำระเต็ม (100%)');
+                setText('modalCoursePrice', `${selectedPrice.toLocaleString()} บาท`);
+                setText('totalPriceDisplay', '');
+            } else {
+                btnDeposit.className = 'rounded-lg py-2 text-xs bg-gold text-black font-bold';
+                btnFull.className = 'rounded-lg py-2 text-xs border border-gold text-gray-400 hover:text-white';
+                const dep = Math.round(selectedPrice * 0.5);
+                setText('paymentTypeText', 'ยอดมัดจำ (50%)');
+                setText('modalCoursePrice', `${dep.toLocaleString()} บาท`);
+                setText('totalPriceDisplay', `(ราคารวม ${selectedPrice.toLocaleString()} บาท)`);
+            }
+        }
+
+        function closeBookingModal() {
+            const m = $('bookingModal'); if(m) m.classList.add('hidden');
+            const f = $('bookingForm'); if(f) f.reset();
+            uploadedSlipData = null;
+            const s = $('slipInput'); if(s) s.value = '';
+            setText('slipPreview', '');
+        }
+
+        function handleSlipUpload(e) {
+            const file = e.target.files[0];
+            if(!file) { uploadedSlipData = null; setText('slipPreview', ''); return; }
+            if(!file.type.startsWith('image/')) { e.target.value = ''; return showToast('กรุณาเลือกไฟล์รูปภาพ'); }
+            if(file.size > 8 * 1024 * 1024) { e.target.value = ''; uploadedSlipData = null; setText('slipPreview', ''); return showToast('รูปภาพต้องไม่เกิน 8MB'); }
+            compressImage(file, 900, 0.7, (b64) => {
+                if(!b64) { e.target.value = ''; uploadedSlipData = null; setText('slipPreview', ''); return showToast('ไม่สามารถอ่านรูปได้'); }
+                uploadedSlipData = b64;
+                setText('slipPreview', '✓ แนบสลิปเรียบร้อย');
+            });
+        }
+
+        async function submitBooking(e) {
+            e.preventDefault();
+            const btn = $('submitBtn');
+            if(btn) { btn.disabled = true; btn.textContent = 'กำลังส่ง...'; }
+
+            try {
+                if(!selectedCourse || !selectedPrice) throw new Error('ไม่พบข้อมูลคอร์ส');
+                if(!uploadedSlipData) throw new Error('กรุณาแนบสลิปโอนเงิน');
+                const custName = getVal('custName').trim();
+                const custTel = getVal('custTel').trim();
+                if(!custName) throw new Error('กรุณากรอกชื่อ');
+                if(!/^0[0-9]{9}$/.test(custTel)) throw new Error('เบอร์โทรไม่ถูกต้อง (10 หลัก)');
+                const custDate = getVal('custDate');
+                const custTime = getVal('custTime');
+                if(!custDate || !custTime) throw new Error('กรุณาระบุวันและเวลา');
+
+                const amountToPay = currentPayType === 'full' ? selectedPrice : Math.round(selectedPrice * 0.5);
+                const order = {
+                    courseName: selectedCourse.name, totalPrice: selectedPrice, paidAmount: amountToPay,
+                    payType: currentPayType === 'full' ? 'ชำระเต็ม 100%' : 'มัดจำ 50%',
+                    duration: selectedDuration, custName, custTel, date: custDate, time: custTime,
+                    note: getVal('custNote').trim(), slipUrl: uploadedSlipData, status: 'pending',
+                    createdAt: new Date().toISOString(),
+                    localId: 'L' + Date.now() + Math.random().toString(36).slice(2, 6)
+                };
+
+                queuePendingOrder(order);
+
+                if(db) {
+                    const cloudData = safeClone(order);
+                    delete cloudData.localId;
+                    try { await addDoc(collection(db, 'orders'), cloudData); }
+                    catch(err) { console.warn('Cloud save failed:', err); }
+                }
+
+                closeBookingModal();
+                const sm = $('successModal'); if(sm) sm.classList.remove('hidden');
+
+            } catch(err) {
+                showToast(err.message || 'เกิดข้อผิดพลาด');
+            } finally {
+                if(btn) { btn.disabled = false; btn.textContent = 'ยืนยันการจอง'; }
+            }
+        }
+
+        function queuePendingOrder(order) {
+            try {
+                let q = tryGetLS('arisa_pending_orders', []);
+                if(!Array.isArray(q)) q = [];
+                if(!q.find(o => o.localId === order.localId)) q.push(order);
+                trySaveLS('arisa_pending_orders', q);
+            } catch(e) { console.error('Queue error:', e); }
+        }
+
+        // ============ AUTH ============
+        function openAuthModal(target) {
+            authTarget = target; authStep = 1;
+            const m = $('authModal'); if(m) m.classList.remove('hidden');
+            const inp = $('authInputPass');
+            if(inp) { inp.value = ''; setTimeout(() => inp.focus(), 100); }
+            setText('authStepBadge', 'กรุณากรอกรหัส (ขั้นที่ 1)');
+            setText('authModalTitle', target === 'staff' ? 'เข้าสู่ระบบพนักงาน' : 'เข้าสู่ระบบแอดมิน');
+        }
+
+        function submitAuthStep() {
+            const inp = $('authInputPass'); if(!inp) return;
+            const val = inp.value.trim(); if(!val) return;
+            const close = () => { const m = $('authModal'); if(m) m.classList.add('hidden'); };
+            const fail = (msg) => { showToast(msg); inp.value = ''; inp.focus(); };
+
+            if(authTarget === 'staff') {
+                const p1 = appConfig.staffPass1 || '123123';
+                const p2 = appConfig.staffPass2 || '321321';
+                if(authStep === 1) {
+                    if(val === p1) { authStep = 2; inp.value = ''; setText('authStepBadge', 'กรุณากรอกรหัส (ขั้นที่ 2)'); inp.focus(); }
+                    else fail('รหัสไม่ถูกต้อง');
+                } else if(authStep === 2) {
+                    if(val === p2) {
+                        close();
+                        const d = $('staffDashboard'); if(d) d.classList.remove('hidden');
+                        const badge = $('newOrderBadge'); if(badge) badge.classList.add('hidden');
+                        renderStaffOrders();
+                        if(db) setupRealtimeSync();
+                    } else fail('รหัสไม่ถูกต้อง');
+                }
+            } else {
+                const p1 = appConfig.adminPass1 || '', p2 = appConfig.adminPass2 || '', p3 = appConfig.adminPass3 || '', p4 = appConfig.adminPass4 || '';
+                if(authStep === 1 && val === p1) { authStep = 2; inp.value = ''; setText('authStepBadge', 'กรุณากรอกรหัส (ขั้นที่ 2)'); inp.focus(); }
+                else if(authStep === 2 && val === p2) { authStep = 3; inp.value = ''; setText('authStepBadge', 'กรุณากรอกรหัส (ขั้นที่ 3)'); inp.focus(); }
+                else if(authStep === 3 && val === p3) { authStep = 4; inp.value = ''; setText('authStepBadge', 'กรุณากรอกรหัส (ขั้นที่ 4)'); inp.focus(); }
+                else if(authStep === 4 && val === p4) { close(); const d = $('adminDashboard'); if(d) d.classList.remove('hidden'); initAdminPanel(); }
+                else fail('รหัสไม่ถูกต้อง');
+            }
+        }
+
+        // ============ REALTIME ============
+        function setupRealtimeSync() {
+            if(!db) return;
+            try {
+                if(unsubscribeOrders) unsubscribeOrders();
+                const q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'), limit(50));
+                unsubscribeOrders = onSnapshot(q, snap => {
+                    const cloudOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    let pending = tryGetLS('arisa_pending_orders', []);
+                    if(!Array.isArray(pending)) pending = [];
+                    const key = o => o.createdAt || o.localId || o.id;
+                    const cloudKeys = new Set(cloudOrders.map(key));
+                    const pendingOnly = pending.filter(o => !cloudKeys.has(key(o)));
+                    const newList = [...pendingOnly, ...cloudOrders];
+
+                    if(!isFirstOrderLoad) {
+                        const incoming = newList.filter(o => {
+                            const id = o.id || o.localId;
+                            return id && !knownOrderIds.has(id) && o.status === 'pending';
+                        });
+                        if(incoming.length > 0) {
+                            playBeep();
+                            showToast(`🔔 มีคิวใหม่ ${incoming.length} รายการ!`);
+                            const badge = $('newOrderBadge');
+                            if(badge) {
+                                const pendingCount = newList.filter(o => o.status === 'pending').length;
+                                badge.textContent = pendingCount;
+                                badge.classList.remove('hidden');
+                            }
+                        }
+                    }
+
+                    newList.forEach(o => { const id = o.id || o.localId; if(id) knownOrderIds.add(id); });
+                    isFirstOrderLoad = false;
+                    ordersList = newList;
+
+                    const sd = $('staffDashboard');
+                    if(sd && !sd.classList.contains('hidden')) renderStaffOrders();
+
+                    const badge = $('newOrderBadge');
+                    if(badge) {
+                        const pendingCount = newList.filter(o => o.status === 'pending').length;
+                        if(pendingCount > 0) { badge.textContent = pendingCount; badge.classList.remove('hidden'); }
+                        else { badge.classList.add('hidden'); }
+                    }
+                }, err => console.error('Sync error:', err));
+            } catch(e) { console.error('setupRealtimeSync:', e); }
+        }
+
+        function renderStaffOrders() {
+            const listEl = $('staffOrderList'); if(!listEl) return;
+            setText('staffTotalQueue', ordersList.length);
+            setText('staffPendingQueue', ordersList.filter(o => o.status === 'pending').length);
+            setText('staffCompletedQueue', ordersList.filter(o => o.status === 'completed').length);
+            const rev = ordersList.filter(o => o.status === 'completed').reduce((s, o) => s + (Number(o.paidAmount) || 0), 0);
+            setText('staffTotalRevenue', `${rev.toLocaleString()} ฿`);
+
+            if(!ordersList.length) {
+                listEl.innerHTML = '<div class="text-center text-gray-500 py-10"><i class="fa-solid fa-inbox text-4xl mb-3 opacity-30"></i><p class="text-sm">ยังไม่มีรายการจอง</p></div>';
+                return;
+            }
+
+            listEl.innerHTML = ordersList.map(o => {
+                const oid = o.id || o.localId || '';
+                const isSynced = !!o.id && !String(o.id).startsWith('L');
+                return `<div class="bg-panelbg p-4 rounded-xl border border-gold/30 text-sm flex flex-col md:flex-row justify-between gap-4">
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2 mb-2 flex-wrap">
+                            <span class="px-2 py-0.5 ${o.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 'bg-green-500/10 text-green-400 border-green-500/20'} text-[10px] rounded border">${o.status === 'pending' ? 'รอรับบริการ' : 'เสร็จสิ้น'}</span>
+                            <span class="px-2 py-0.5 bg-blue-500/10 text-blue-400 text-[10px] rounded border border-blue-500/20">${escapeHtml(o.payType)}</span>
+                            <span class="text-gray-500 text-xs font-mono">#${escapeHtml(String(oid).slice(-6).toUpperCase())}</span>
+                            ${!isSynced ? '<span class="text-[9px] text-yellow-400 border border-yellow-500/30 px-1.5 py-0.5 rounded">รอซิงค์</span>' : ''}
+                        </div>
+                        <p class="font-bold text-white text-base">${escapeHtml(o.courseName)} (${o.duration} ชม.) - <span class="text-gold">${o.paidAmount} ฿</span></p>
+                        <p class="text-gray-300 mt-1">ลูกค้า: ${escapeHtml(o.custName)} | <a href="tel:${escapeHtml(o.custTel)}" class="text-gold font-mono hover:underline">${escapeHtml(o.custTel)}</a></p>
+                        <p class="text-gray-400 mt-1"><i class="fa-regular fa-calendar mr-1"></i> ${escapeHtml(o.date)} เวลา ${escapeHtml(o.time)} น.</p>
+                        ${o.note ? `<p class="text-gray-500 text-xs mt-1 italic">หมายเหตุ: ${escapeHtml(o.note)}</p>` : ''}
+                    </div>
+                    <div class="flex md:flex-col gap-2 items-end justify-center">
+                        ${o.slipUrl ? `<button onclick="window.app.viewSlipById('${escapeHtml(String(oid))}')" class="px-4 py-2 bg-darkbg border border-gold text-gold rounded-lg text-xs hover:bg-gold hover:text-black transition-colors"><i class="fa-solid fa-receipt mr-1"></i> ดูสลิป</button>` : ''}
+                        ${o.status === 'pending' ? `<button onclick="window.app.updateOrder('${escapeHtml(String(oid))}', 'completed')" class="px-4 py-2 bg-green-900/30 text-green-400 border border-green-500/30 rounded-lg text-xs hover:bg-green-900/60 transition-colors"><i class="fa-solid fa-check mr-1"></i> เสร็จสิ้น</button>` : ''}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        async function updateOrder(id, status) {
+            const order = ordersList.find(o => String(o.id) === String(id) || String(o.localId) === String(id));
+            if(order) order.status = status;
+            if(String(id).startsWith('L')) {
+                try {
+                    const q = tryGetLS('arisa_pending_orders', []);
+                    if(Array.isArray(q)) {
+                        const idx = q.findIndex(o => String(o.localId) === String(id));
+                        if(idx > -1) { q[idx].status = status; trySaveLS('arisa_pending_orders', q); }
+                    }
+                } catch(e) {}
+            }
+            renderStaffOrders();
+            if(db && id && !String(id).startsWith('L')) {
+                try { await updateDoc(doc(db, 'orders', String(id)), { status }); } catch(e) { console.error(e); }
+            }
+        }
+
+        function viewSlipById(id) {
+            const o = ordersList.find(x => String(x.id) === String(id) || String(x.localId) === String(id));
+            if(!o || !o.slipUrl) return showToast('ไม่พบสลิป');
+            const m = $('slipModal'), img = $('slipImg');
+            if(m && img) { img.src = o.slipUrl; m.classList.remove('hidden'); }
+        }
+
+        // ============ ADMIN ============
+        function initAdminPanel() {
+            draftConfig = safeClone(appConfig);
+            draftCourses = safeClone(coursesList);
+            loadGeneralForm(); loadPaymentForm(); loadSecurityForm();
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            const c = $('content-general'); if(c) c.classList.remove('hidden');
+            const t = $('tab-general'); if(t) t.classList.add('active');
+            const fbc = $('firebaseConfigInput');
+            const saved = localStorage.getItem('arisa_fb_config');
+            if(fbc && saved) { try { fbc.value = JSON.stringify(JSON.parse(saved), null, 2); } catch(e) {} }
+        }
+
+        function switchTab(t) {
+            saveCurrentTabToDraft();
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            const c = $('content-' + t); if(c) c.classList.remove('hidden');
+            const tb = $('tab-' + t); if(tb) tb.classList.add('active');
+            if(t === 'general') loadGeneralForm();
+            if(t === 'payment') loadPaymentForm();
+            if(t === 'courses') renderAdminCourses();
+            if(t === 'layout') renderLayoutBuilder();
+            if(t === 'gallery') renderAdminGallery();
+            if(t === 'security') loadSecurityForm();
+        }
+
+        function saveCurrentTabToDraft() {
+            try {
+                if($('cfgShopName')) {
+                    draftConfig.shopName = getVal('cfgShopName') || draftConfig.shopName;
+                    draftConfig.shopSubTitle = getVal('cfgShopSubTitle');
+                    draftConfig.logoText = getVal('cfgLogoText');
+                    draftConfig.tel1 = getVal('cfgTel1');
+                    draftConfig.address = getVal('cfgAddress');
+                    draftConfig.gpsUrl = getVal('cfgGps');
+                    draftConfig.fbUrl = getVal('cfgFbUrl');
+                    draftConfig.lineId = getVal('cfgLineId');
+                    draftConfig.themePrimary = getVal('cfgThemePrimary') || '#D4AF37';
+                    draftConfig.themeBg = getVal('cfgThemeBg') || '#0f0f11';
+                    draftConfig.popupOn = getChk('cfgPopupOn');
+                    draftConfig.popupTitle = getVal('cfgPopupTitle');
+                    draftConfig.popupText = getVal('cfgPopupText');
+                }
+                if($('cfgPayBank')) {
+                    draftConfig.payBankName = getVal('cfgPayBank');
+                    draftConfig.payAccNum = getVal('cfgPayAcc');
+                    draftConfig.payAccName = getVal('cfgPayName');
+                }
+                if($('cfgStaffP1')) {
+                    draftConfig.staffPass1 = getVal('cfgStaffP1');
+                    draftConfig.staffPass2 = getVal('cfgStaffP2');
+                    draftConfig.adminPass1 = getVal('cfgAdminP1');
+                    draftConfig.adminPass2 = getVal('cfgAdminP2');
+                    draftConfig.adminPass3 = getVal('cfgAdminP3');
+                    draftConfig.adminPass4 = getVal('cfgAdminP4');
+                }
+            } catch(e) { console.error('saveCurrentTabToDraft:', e); }
+        }
+
+        function loadGeneralForm() {
+            setVal('cfgShopName', draftConfig.shopName); setVal('cfgShopSubTitle', draftConfig.shopSubTitle);
+            setVal('cfgLogoText', draftConfig.logoText); setVal('cfgTel1', draftConfig.tel1);
+            setVal('cfgAddress', draftConfig.address); setVal('cfgGps', draftConfig.gpsUrl);
+            setVal('cfgFbUrl', draftConfig.fbUrl); setVal('cfgLineId', draftConfig.lineId);
+            setVal('cfgThemePrimary', draftConfig.themePrimary || '#D4AF37');
+            setVal('cfgThemeBg', draftConfig.themeBg || '#0f0f11');
+            const c = $('cfgPopupOn'); if(c) c.checked = !!draftConfig.popupOn;
+            setVal('cfgPopupTitle', draftConfig.popupTitle); setVal('cfgPopupText', draftConfig.popupText);
+            const img = $('adminPopupImgPreview');
+            if(img) {
+                if(draftConfig.popupImg) { img.src = draftConfig.popupImg; img.classList.remove('hidden'); }
+                else { img.src = ''; img.classList.add('hidden'); }
+            }
+        }
+
+        function loadPaymentForm() {
+            setVal('cfgPayBank', draftConfig.payBankName); setVal('cfgPayAcc', draftConfig.payAccNum); setVal('cfgPayName', draftConfig.payAccName);
+            const img = $('adminQrPreview');
+            if(img) {
+                if(draftConfig.qrCodeImg) { img.src = draftConfig.qrCodeImg; img.classList.remove('hidden'); }
+                else { img.src = ''; img.classList.add('hidden'); }
+            }
+        }
+
+        function loadSecurityForm() {
+            setVal('cfgStaffP1', draftConfig.staffPass1); setVal('cfgStaffP2', draftConfig.staffPass2);
+            setVal('cfgAdminP1', draftConfig.adminPass1); setVal('cfgAdminP2', draftConfig.adminPass2);
+            setVal('cfgAdminP3', draftConfig.adminPass3); setVal('cfgAdminP4', draftConfig.adminPass4);
+        }
+
+        function renderAdminCourses() {
+            const list = $('adminCourseList'); if(!list) return;
+            if(!draftCourses.length) { list.innerHTML = '<p class="text-gray-500 text-center py-6 text-sm col-span-full">ยังไม่มีคอร์ส</p>'; return; }
+            list.innerHTML = draftCourses.map(c => `
+                <div class="bg-panelbg p-3 rounded-xl flex gap-3 items-center border border-gold/30">
+                    <img src="${escapeHtml(c.img || '')}" class="w-14 h-14 rounded-lg object-cover border border-gold" alt="">
+                    <div class="flex-1 text-sm min-w-0">
+                        <b class="text-white block truncate">${escapeHtml(c.name)}</b>
+                        <span class="text-gray-400 text-xs">1ชม: ${c.price1h || '-'}฿ | 2ชม: ${c.price2h || '-'}฿</span>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <button onclick="window.app.editCourse(${c.id})" class="w-8 h-8 flex items-center justify-center text-blue-400 hover:bg-blue-900/30 rounded-lg"><i class="fa-solid fa-pen text-xs"></i></button>
+                        <button onclick="window.app.delCourse(${c.id})" class="w-8 h-8 flex items-center justify-center text-red-400 hover:bg-red-900/30 rounded-lg"><i class="fa-solid fa-trash text-xs"></i></button>
+                    </div>
+                </div>`).join('');
+        }
+
+        function openCourseEditor() {
+            editingCourseId = null; currentCourseImgBase64 = null;
+            const e = $('courseEditor'); if(e) e.classList.remove('hidden');
+            const t = $('editorTitle'); if(t) t.innerHTML = '<i class="fa-solid fa-plus mr-2"></i>เพิ่มคอร์สใหม่';
+            setVal('ceditName', ''); setVal('ceditP1', ''); setVal('ceditP2', ''); setVal('ceditDesc', '');
+            const img = $('ceditImgPreview'); if(img) { img.classList.add('hidden'); img.src = ''; }
+        }
+
+        function editCourse(id) {
+            const c = draftCourses.find(x => x.id === id); if(!c) return;
+            editingCourseId = id; currentCourseImgBase64 = null;
+            const e = $('courseEditor'); if(e) e.classList.remove('hidden');
+            const t = $('editorTitle'); if(t) t.innerHTML = '<i class="fa-solid fa-pen mr-2"></i>แก้ไขคอร์ส';
+            setVal('ceditName', c.name); setVal('ceditP1', c.price1h == null ? '' : c.price1h); setVal('ceditP2', c.price2h == null ? '' : c.price2h); setVal('ceditDesc', c.desc || '');
+            const img = $('ceditImgPreview'); if(img) { img.src = c.img || ''; img.classList.remove('hidden'); }
+        }
+
+        function saveCourse() {
+            const name = getVal('ceditName').trim();
+            const p1v = getVal('ceditP1').trim(), p2v = getVal('ceditP2').trim();
+            const p1 = p1v === '' ? null : parseInt(p1v);
+            const p2 = p2v === '' ? null : parseInt(p2v);
+            const desc = getVal('ceditDesc').trim();
+            if(!name) return showToast('กรุณากรอกชื่อคอร์ส');
+            if(p1 !== null && (isNaN(p1) || p1 < 0)) return showToast('ราคา 1 ชม. ไม่ถูกต้อง');
+            if(p2 !== null && (isNaN(p2) || p2 < 0)) return showToast('ราคา 2 ชม. ไม่ถูกต้อง');
+            if(p1 === null && p2 === null) return showToast('กรุณากรอกราคาอย่างน้อย 1 รายการ');
+            let finalImg = currentCourseImgBase64;
+            if(!finalImg) {
+                if(editingCourseId) { const existing = draftCourses.find(x => x.id === editingCourseId); finalImg = existing ? existing.img : ''; }
+                if(!finalImg) finalImg = 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=800';
+            }
+            if(editingCourseId) {
+                const idx = draftCourses.findIndex(x => x.id === editingCourseId);
+                if(idx > -1) draftCourses[idx] = { id: editingCourseId, name, desc, price1h: p1, price2h: p2, img: finalImg };
+            } else {
+                draftCourses.push({ id: Date.now(), name, desc, price1h: p1, price2h: p2, img: finalImg });
+            }
+            renderAdminCourses();
+            const e = $('courseEditor'); if(e) e.classList.add('hidden');
+            showToast('อัปเดตคอร์สในร่างแล้ว (กดบันทึกด้านล่าง)');
+        }
+
+        function delCourse(id) { if(!confirm('ลบคอร์สนี้?')) return; draftCourses = draftCourses.filter(c => c.id !== id); renderAdminCourses(); }
+
+        function renderAdminGallery() {
+            const list = $('adminGalleryList'); if(!list) return;
+            if(!Array.isArray(draftConfig.galleryImages) || draftConfig.galleryImages.length === 0) {
+                list.innerHTML = '<p class="text-gray-500 text-center col-span-full py-4 text-xs">ยังไม่มีรูปภาพ</p>'; return;
+            }
+            list.innerHTML = draftConfig.galleryImages.map((img, i) => `
+                <div class="relative group">
+                    <img src="${escapeHtml(img)}" class="w-full h-32 object-cover rounded-xl border border-gold" alt="">
+                    <button onclick="window.app.delGalleryImage(${i})" class="absolute top-2 right-2 w-8 h-8 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-lg"><i class="fa-solid fa-trash text-xs"></i></button>
+                </div>`).join('');
+        }
+
+        function handleGalleryUpload(e) {
+            const file = e.target.files[0]; if(!file) return;
+            if(!file.type.startsWith('image/')) { e.target.value = ''; return showToast('กรุณาเลือกไฟล์รูปภาพ'); }
+            compressImage(file, 900, 0.7, (b64) => {
+                if(!b64) { e.target.value = ''; return showToast('ไม่สามารถอ่านรูปได้'); }
+                if(!Array.isArray(draftConfig.galleryImages)) draftConfig.galleryImages = [];
+                draftConfig.galleryImages.push(b64);
+                renderAdminGallery();
+                showToast('เพิ่มรูปแล้ว (กดบันทึกด้านล่าง)');
+                e.target.value = '';
+            });
+        }
+
+        function delGalleryImage(index) {
+            if(!Array.isArray(draftConfig.galleryImages)) return;
+            if(!confirm('ลบรูปนี้?')) return;
+            draftConfig.galleryImages.splice(index, 1);
+            renderAdminGallery();
+        }
+
+        function renderLayoutBuilder() {
+            const container = $('layoutList'); if(!container) return;
+            const sections = Array.isArray(draftConfig.sections) ? draftConfig.sections : [];
+            container.innerHTML = sections.map((sec, index) => {
+                let label = sec.type;
+                if(sec.type === 'hero') label = 'ส่วนต้อนรับ (Hero)';
+                if(sec.type === 'courses') label = 'คอร์สนวด';
+                if(sec.type === 'gallery') label = 'รูปภาพบรรยากาศ';
+                if(sec.type === 'info') label = 'ข้อควรรู้';
+                if(sec.type === 'contact') label = 'ติดต่อเรา';
+                if(sec.type === 'custom') { const b = (draftConfig.customBlocks || []).find(x => x.id === sec.id); label = 'ข้อความกำหนดเอง: ' + (b ? b.title : ''); }
+                return `<div class="bg-panelbg p-3 rounded-xl flex items-center gap-2 border border-gold/30 mb-2 drag-item" draggable="true" data-index="${index}">
+                    <i class="fa-solid fa-grip-vertical text-gray-500 cursor-grab hidden sm:block"></i>
+                    <span class="flex-1 text-sm text-white font-medium truncate">${escapeHtml(label)}</span>
+                    <label class="flex items-center gap-1 cursor-pointer bg-darkbg px-2 py-1 rounded">
+                        <input type="checkbox" ${sec.visible !== false ? 'checked' : ''} onchange="window.app.toggleSectionVisibility(${index}, this.checked)" class="accent-[var(--primary)]">
+                        <span class="text-[10px] text-gray-400">แสดง</span>
+                    </label>
+                    <div class="flex flex-col gap-0.5">
+                        <button onclick="window.app.moveSection(${index}, -1)" class="text-gray-400 hover:text-gold disabled:opacity-30" ${index===0?'disabled':''}><i class="fa-solid fa-chevron-up text-xs"></i></button>
+                        <button onclick="window.app.moveSection(${index}, 1)" class="text-gray-400 hover:text-gold disabled:opacity-30" ${index===sections.length-1?'disabled':''}><i class="fa-solid fa-chevron-down text-xs"></i></button>
+                    </div>
+                    ${sec.type === 'custom' ? `<button onclick="window.app.delCustomSection(${index})" class="text-red-400 p-1 ml-1"><i class="fa-solid fa-trash"></i></button>` : ''}
+                </div>`;
+            }).join('');
+
+            const cc = $('customBlocksEditor');
+            if(cc) {
+                const blocks = Array.isArray(draftConfig.customBlocks) ? draftConfig.customBlocks : [];
+                if(blocks.length === 0) { cc.innerHTML = ''; }
+                else {
+                    cc.innerHTML = '<h4 class="text-gold font-bold text-sm mt-6 mb-2 border-b border-gold pb-1">แก้ไขข้อความ/รูปภาพกำหนดเอง</h4>' + blocks.map((b, i) => `
+                        <div class="bg-panelbg p-4 rounded-xl border border-gold/30 mb-3">
+                            <input type="text" value="${escapeHtml(b.title || '')}" onchange="window.app.updateCustomBlock(${i}, 'title', this.value)" class="w-full bg-darkbg border border-gold rounded-lg p-2 text-sm text-white mb-2" placeholder="หัวข้อ">
+                            <textarea onchange="window.app.updateCustomBlock(${i}, 'content', this.value)" class="w-full bg-darkbg border border-gold rounded-lg p-2 text-sm text-white mb-2" rows="3" placeholder="ข้อความ...">${escapeHtml(b.content || '')}</textarea>
+                            <div class="flex items-center gap-2">
+                                <input type="file" accept="image/*" onchange="window.app.uploadCustomBlockImg(${i}, event)" class="text-xs text-gray-400 file:bg-gold/20 file:text-gold file:border-0 file:rounded file:px-2 file:py-1">
+                                ${b.image ? `<img src="${escapeHtml(b.image)}" class="h-8 w-8 object-cover rounded" alt="">` : ''}
+                            </div>
+                        </div>`).join('');
+                }
+            }
+            setupDragAndDrop();
+        }
+
+        function moveSection(index, dir) {
+            if(!Array.isArray(draftConfig.sections)) return;
+            const ni = index + dir;
+            if(ni < 0 || ni >= draftConfig.sections.length) return;
+            const item = draftConfig.sections.splice(index, 1)[0];
+            draftConfig.sections.splice(ni, 0, item);
+            renderLayoutBuilder();
+        }
+
+        function toggleSectionVisibility(index, vis) {
+            if(Array.isArray(draftConfig.sections) && draftConfig.sections[index]) draftConfig.sections[index].visible = vis;
+        }
+
+        function setupDragAndDrop() {
+            const list = $('layoutList'); if(!list) return;
+            let dragged = null;
+            list.ondragstart = (e) => { dragged = e.target.closest('.drag-item'); if(dragged) { dragged.style.opacity = '0.5'; e.dataTransfer.effectAllowed = 'move'; } };
+            list.ondragend = () => { if(dragged) { dragged.style.opacity = '1'; dragged = null; } };
+            list.ondragover = (e) => { e.preventDefault(); const t = e.target.closest('.drag-item'); if(t && t !== dragged) t.classList.add('drag-over'); };
+            list.ondragleave = (e) => { const t = e.target.closest('.drag-item'); if(t) t.classList.remove('drag-over'); };
+            list.ondrop = (e) => {
+                e.preventDefault();
+                const target = e.target.closest('.drag-item'); if(target) target.classList.remove('drag-over');
+                if(!target || !dragged || target === dragged) return;
+                const from = parseInt(dragged.dataset.index), to = parseInt(target.dataset.index);
+                const item = draftConfig.sections.splice(from, 1)[0];
+                draftConfig.sections.splice(to, 0, item);
+                renderLayoutBuilder();
+            };
+        }
+
+        function addCustomSection() {
+            const id = 'custom_' + Date.now();
+            if(!Array.isArray(draftConfig.customBlocks)) draftConfig.customBlocks = [];
+            if(!Array.isArray(draftConfig.sections)) draftConfig.sections = [];
+            draftConfig.customBlocks.push({ id, title: 'หัวข้อใหม่', content: 'รายละเอียด...', image: '' });
+            draftConfig.sections.push({ id, type: 'custom', visible: true });
+            renderLayoutBuilder();
+            showToast('เพิ่มบล็อกข้อความแล้ว');
+        }
+
+        function delCustomSection(index) {
+            if(!Array.isArray(draftConfig.sections)) return;
+            if(!draftConfig.sections[index]) return;
+            if(!confirm('ลบบล็อกนี้?')) return;
+            const sec = draftConfig.sections[index];
+            draftConfig.sections.splice(index, 1);
+            draftConfig.customBlocks = (draftConfig.customBlocks || []).filter(b => b.id !== sec.id);
+            renderLayoutBuilder();
+        }
+
+        function updateCustomBlock(index, field, val) {
+            if(Array.isArray(draftConfig.customBlocks) && draftConfig.customBlocks[index]) draftConfig.customBlocks[index][field] = val;
+        }
+
+        function uploadCustomBlockImg(index, e) {
+            const file = e.target.files[0]; if(!file) return;
+            compressImage(file, 900, 0.7, (b64) => {
+                if(!b64) return;
+                if(Array.isArray(draftConfig.customBlocks) && draftConfig.customBlocks[index]) {
+                    draftConfig.customBlocks[index].image = b64;
+                    renderLayoutBuilder();
+                }
+            });
+        }
+
+        // ============ SAVE ALL ADMIN ============
+        async function saveAllAdminSettings() {
+            const btn = $('saveAdminBtn');
+            if(btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> กำลังบันทึก...'; }
+
+            try {
+                saveCurrentTabToDraft();
+                const newConfig = safeClone(draftConfig);
+                const newCourses = safeClone(draftCourses);
+
+                const ok1 = trySaveLS('arisa_config', newConfig);
+                const ok2 = trySaveLS('arisa_courses', newCourses);
+
+                if(!ok1 || !ok2) {
+                    showToast('❌ บันทึกไม่สำเร็จ: พื้นที่เต็ม กรุณาลบรูปภาพเก่าออกก่อน');
+                    return;
+                }
+
+                appConfig = newConfig;
+                coursesList = newCourses;
+
+                renderAppUI();
+                loadGeneralForm();
+                loadPaymentForm();
+                loadSecurityForm();
+
+                if(db) {
+                    try {
+                        await setDoc(doc(db, 'settings', 'config'), {
+                            appConfig: safeClone(appConfig),
+                            coursesList: safeClone(coursesList),
+                            updatedAt: new Date().toISOString()
+                        });
+                        showToast('✅ บันทึกสำเร็จ (Local + Cloud)');
+                    } catch(e) {
+                        console.error('Cloud save error:', e);
+                        showToast('✅ บันทึกในเครื่องแล้ว (Cloud ไม่สำเร็จ: ' + (e.code || e.message) + ')');
+                    }
+                } else {
+                    showToast('✅ บันทึกสำเร็จ (Local only - ยังไม่เชื่อม Cloud)');
+                }
+
+                setTimeout(() => { const d = $('adminDashboard'); if(d) d.classList.add('hidden'); }, 600);
+
+            } catch(e) {
+                console.error('Save error:', e);
+                showToast('❌ เกิดข้อผิดพลาด: ' + (e.message || 'Unknown'));
+            } finally {
+                if(btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-2 text-lg"></i> บันทึกการตั้งค่าทั้งหมด'; }
+            }
+        }
+
+        function handleQrUpload(e) {
+            const file = e.target.files[0]; if(!file) return;
+            compressImage(file, 800, 0.8, (b64) => {
+                if(!b64) return showToast('ไม่สามารถอ่านรูปได้');
+                draftConfig.qrCodeImg = b64;
+                const img = $('adminQrPreview'); if(img) { img.src = b64; img.classList.remove('hidden'); }
+                showToast('อัปโหลด QR แล้ว (กดบันทึกด้านล่าง)');
+            });
+        }
+
+        function handleCourseImgUpload(e) {
+            const file = e.target.files[0]; if(!file) return;
+            compressImage(file, 900, 0.7, (b64) => {
+                if(!b64) return;
+                currentCourseImgBase64 = b64;
+                const img = $('ceditImgPreview'); if(img) { img.src = b64; img.classList.remove('hidden'); }
+            });
+        }
+
+        function handlePopupImgUpload(e) {
+            const file = e.target.files[0]; if(!file) return;
+            compressImage(file, 900, 0.7, (b64) => {
+                if(!b64) return showToast('ไม่สามารถอ่านรูปได้');
+                draftConfig.popupImg = b64;
+                const img = $('adminPopupImgPreview'); if(img) { img.src = b64; img.classList.remove('hidden'); }
+                showToast('อัปโหลดรูป Popup แล้ว (กดบันทึกด้านล่าง)');
+            });
+        }
+
+        // ============ FIREBASE ============
+        function parseFirebaseConfig(str) {
+            str = (str || '').trim();
+            if(!str) return null;
+            try { const j = JSON.parse(str); if(j.apiKey) return j; } catch(e) {}
+            const m1 = str.match(/(?:const|let|var)\s+firebaseConfig\s*=\s*(\{[\s\S]*?\})\s*;?/m);
+            if(m1) { try { const j = JSON.parse(m1[1]); if(j.apiKey) return j; } catch(e) {} }
+            try { const fn = new Function('return (' + str + ');'); const r = fn(); if(r && typeof r === 'object' && r.apiKey) return r; } catch(e) {}
+            const m2 = str.match(/(\{[\s\S]*\})/);
+            if(m2) { try { const j = JSON.parse(m2[1]); if(j.apiKey) return j; } catch(e) {} }
+            return null;
+        }
+
+        function connectDatabase() {
+            const input = $('firebaseConfigInput'); if(!input) return;
+            const configStr = input.value.trim(); if(!configStr) return showToast('กรุณาวาง Firebase Config');
+            const parsed = parseFirebaseConfig(configStr);
+            if(!parsed || !parsed.apiKey) return showToast('รูปแบบ Config ไม่ถูกต้อง');
+            trySaveLS('arisa_fb_config', parsed);
+            const statusEl = $('dbStatus');
+            if(statusEl) statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-blue-400"></i> กำลังเชื่อมต่อ...';
+            try {
+                firebaseApp = initializeApp(parsed);
+                db = getFirestore(firebaseApp);
+                if(statusEl) statusEl.innerHTML = '<i class="fa-solid fa-check-circle text-green-500"></i> เชื่อมต่อสำเร็จ!';
+                showToast('เชื่อมต่อฐานข้อมูลสำเร็จ');
+                if(unsubscribeConfig) try { unsubscribeConfig(); } catch(e) {}
+                unsubscribeConfig = onSnapshot(doc(db, 'settings', 'config'), snap => {
+                    if(snap.exists()) {
+                        const data = snap.data();
+                        if(data.appConfig) appConfig = { ...appConfig, ...data.appConfig };
+                        if(Array.isArray(data.coursesList) && data.coursesList.length > 0) coursesList = data.coursesList;
+                        trySaveLS('arisa_config', appConfig);
+                        trySaveLS('arisa_courses', coursesList);
+                        renderAppUI();
+                    }
+                }, err => console.error('Config sync:', err));
+                isFirstOrderLoad = true;
+                setupRealtimeSync();
+            } catch(e) {
+                console.error('Firebase init error:', e);
+                if(statusEl) statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-red-500"></i> ไม่สำเร็จ: ' + (e.message || 'Error');
+                showToast('เชื่อมต่อไม่สำเร็จ: ' + (e.message || 'Error'));
+            }
+        }
+
+        // ============ BOOT ============
+        function closeWelcome() { const p = $('welcomePopup'); if(p) p.classList.add('hidden'); }
+
+        function init() {
+            try {
+                const savedCfg = tryGetLS('arisa_config', null);
+                if(savedCfg) appConfig = { ...DEFAULT_CONFIG, ...savedCfg };
+                if(!Array.isArray(appConfig.sections) || appConfig.sections.length === 0) appConfig.sections = safeClone(DEFAULT_CONFIG.sections);
+                if(!Array.isArray(appConfig.galleryImages)) appConfig.galleryImages = [];
+                if(!Array.isArray(appConfig.customBlocks)) appConfig.customBlocks = [];
+
+                const savedCourses = tryGetLS('arisa_courses', null);
+                if(Array.isArray(savedCourses) && savedCourses.length > 0) coursesList = savedCourses;
+
+                const d = $('custDate');
+                if(d) { const today = new Date().toISOString().split('T')[0]; d.value = today; d.min = today; }
+
+                renderAppUI();
+
+                const form = $('bookingForm'); if(form) form.addEventListener('submit', submitBooking);
+                const slipInput = $('slipInput'); if(slipInput) slipInput.addEventListener('change', handleSlipUpload);
+                const popupImgInput = $('popupImgInput'); if(popupImgInput) popupImgInput.addEventListener('change', handlePopupImgUpload);
+                const qrImgInput = $('qrImgInput'); if(qrImgInput) qrImgInput.addEventListener('change', handleQrUpload);
+                const courseImgInput = $('courseImgInput'); if(courseImgInput) courseImgInput.addEventListener('change', handleCourseImgUpload);
+                const galleryInput = $('galleryInput'); if(galleryInput) galleryInput.addEventListener('change', handleGalleryUpload);
+                const authInput = $('authInputPass'); if(authInput) authInput.addEventListener('keydown', e => { if(e.key === 'Enter') submitAuthStep(); });
+
+                const savedFb = tryGetLS('arisa_fb_config', null);
+                if(savedFb && savedFb.apiKey) {
+                    try {
+                        firebaseApp = initializeApp(savedFb);
+                        db = getFirestore(firebaseApp);
+                        unsubscribeConfig = onSnapshot(doc(db, 'settings', 'config'), snap => {
+                            if(snap.exists()) {
+                                const data = snap.data();
+                                if(data.appConfig) appConfig = { ...appConfig, ...data.appConfig };
+                                if(Array.isArray(data.coursesList) && data.coursesList.length > 0) coursesList = data.coursesList;
+                                renderAppUI();
+                            }
+                        }, err => console.warn('Config sync:', err));
+                        isFirstOrderLoad = true;
+                        setupRealtimeSync();
+                    } catch(e) { console.warn('Auto Firebase failed:', e); }
+                }
+
+                const unlockAudio = () => {
+                    try { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if(audioCtx.state === 'suspended') audioCtx.resume(); } catch(e) {}
+                    document.removeEventListener('click', unlockAudio);
+                    document.removeEventListener('touchstart', unlockAudio);
+                };
+                document.addEventListener('click', unlockAudio);
+                document.addEventListener('touchstart', unlockAudio);
+
+            } catch(e) { console.error('Init error:', e); }
+        }
+
+        window.app = {
+            openBooking, setPayType, closeBookingModal, submitAuthStep, openAuthModal,
+            switchTab, saveAllAdminSettings, openCourseEditor, editCourse, saveCourse, delCourse,
+            moveSection, toggleSectionVisibility, addCustomSection, delCustomSection,
+            updateCustomBlock, uploadCustomBlockImg, delGalleryImage,
+            updateOrder, viewSlipById, connectDatabase, closeWelcome
+        };
+
+        if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+        else init();
+    </script>
+</body>
+</html>
