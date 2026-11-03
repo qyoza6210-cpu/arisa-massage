@@ -350,12 +350,11 @@
 
                 <div id="content-system" class="tab-content hidden space-y-4">
                     <h3 class="text-xl font-display font-bold text-white mb-6 border-b border-gold pb-2">ตั้งค่าฐานข้อมูล Cloud</h3>
-                    <div class="bg-blue-900/10 text-blue-300 p-4 rounded-xl border border-blue-500/20 text-xs mb-4">
-                        <strong>คำแนะนำ:</strong> Firebase Console → Project Settings → Your apps → Web app → คัดลอก Object Config (ที่เริ่มด้วย <code>{</code> และจบด้วย <code>}</code>) มาวางในช่องด้านล่าง
+                    <div class="bg-green-900/10 text-green-300 p-4 rounded-xl border border-green-500/20 text-xs mb-4 font-bold">
+                        <i class="fa-solid fa-check-circle mr-2"></i> ระบบเชื่อมต่อ Cloud อัตโนมัติแล้ว (ไม่ต้องตั้งค่าเพิ่ม)
                     </div>
-                    <textarea id="firebaseConfigInput" rows="8" class="w-full p-4 bg-darkbg border border-gold rounded-xl text-green-400 font-mono text-xs focus:outline-none" placeholder='{ "apiKey": "...", "authDomain": "...", "projectId": "...", "storageBucket": "...", "messagingSenderId": "...", "appId": "..." }'></textarea>
-                    <button onclick="window.app.connectDatabase()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition"><i class="fa-solid fa-plug mr-2"></i> เชื่อมต่อฐานข้อมูล</button>
-                    <div id="dbStatus" class="text-center mt-2 font-bold text-sm"></div>
+                    <textarea id="firebaseConfigInput" rows="8" class="w-full p-4 bg-darkbg border border-gold rounded-xl text-green-400 font-mono text-xs focus:outline-none hidden" placeholder='{ "apiKey": "...", "authDomain": "...", "projectId": "...", "storageBucket": "...", "messagingSenderId": "...", "appId": "..." }'></textarea>
+                    <div id="dbStatus" class="text-center mt-2 font-bold text-sm text-green-500">🟢 เชื่อมต่อฐานข้อมูลสำเร็จ!</div>
                 </div>
             </div>
             
@@ -376,6 +375,18 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, onSnapshot, query, orderBy, limit, updateDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // ==========================================
+        // 🔥 FIREBASE CONFIG (ฝังในโค้ดแล้ว)
+        // ==========================================
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyCgnUPY5rlhUl66c_U_eVugvwqc3nnJRh0",
+            authDomain: "arisa-massage-f96b6.firebaseapp.com",
+            projectId: "arisa-massage-f96b6",
+            storageBucket: "arisa-massage-f96b6.firebasestorage.app",
+            messagingSenderId: "685266405819",
+            appId: "1:685266405819:web:555a2a393fc57a5153dc9e"
+        };
 
         const DEFAULT_CONFIG = {
             shopName: "นวดเพื่อสุขภาพอริษา", shopSubTitle: "ARISA HEALTH MASSAGE", logoText: "อ",
@@ -679,15 +690,18 @@
                     localId: 'L' + Date.now() + Math.random().toString(36).slice(2, 6)
                 };
 
+                // Save to queue first (always safe)
                 queuePendingOrder(order);
 
+                // Save to cloud if available
                 if(db) {
                     const cloudData = safeClone(order);
                     delete cloudData.localId;
                     try { await addDoc(collection(db, 'orders'), cloudData); }
-                    catch(err) { console.warn('Cloud save failed:', err); }
+                    catch(err) { console.warn('Cloud save failed (kept in queue):', err); }
                 }
 
+                // Show success
                 closeBookingModal();
                 const sm = $('successModal'); if(sm) sm.classList.remove('hidden');
 
@@ -735,7 +749,6 @@
                         const d = $('staffDashboard'); if(d) d.classList.remove('hidden');
                         const badge = $('newOrderBadge'); if(badge) badge.classList.add('hidden');
                         renderStaffOrders();
-                        if(db) setupRealtimeSync();
                     } else fail('รหัสไม่ถูกต้อง');
                 }
             } else {
@@ -1195,7 +1208,7 @@
                         showToast('✅ บันทึกในเครื่องแล้ว (Cloud ไม่สำเร็จ: ' + (e.code || e.message) + ')');
                     }
                 } else {
-                    showToast('✅ บันทึกสำเร็จ (Local only - ยังไม่เชื่อม Cloud)');
+                    showToast('✅ บันทึกสำเร็จ (Local only)');
                 }
 
                 setTimeout(() => { const d = $('adminDashboard'); if(d) d.classList.add('hidden'); }, 600);
@@ -1237,52 +1250,6 @@
             });
         }
 
-        // ============ FIREBASE ============
-        function parseFirebaseConfig(str) {
-            str = (str || '').trim();
-            if(!str) return null;
-            try { const j = JSON.parse(str); if(j.apiKey) return j; } catch(e) {}
-            const m1 = str.match(/(?:const|let|var)\s+firebaseConfig\s*=\s*(\{[\s\S]*?\})\s*;?/m);
-            if(m1) { try { const j = JSON.parse(m1[1]); if(j.apiKey) return j; } catch(e) {} }
-            try { const fn = new Function('return (' + str + ');'); const r = fn(); if(r && typeof r === 'object' && r.apiKey) return r; } catch(e) {}
-            const m2 = str.match(/(\{[\s\S]*\})/);
-            if(m2) { try { const j = JSON.parse(m2[1]); if(j.apiKey) return j; } catch(e) {} }
-            return null;
-        }
-
-        function connectDatabase() {
-            const input = $('firebaseConfigInput'); if(!input) return;
-            const configStr = input.value.trim(); if(!configStr) return showToast('กรุณาวาง Firebase Config');
-            const parsed = parseFirebaseConfig(configStr);
-            if(!parsed || !parsed.apiKey) return showToast('รูปแบบ Config ไม่ถูกต้อง');
-            trySaveLS('arisa_fb_config', parsed);
-            const statusEl = $('dbStatus');
-            if(statusEl) statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-blue-400"></i> กำลังเชื่อมต่อ...';
-            try {
-                firebaseApp = initializeApp(parsed);
-                db = getFirestore(firebaseApp);
-                if(statusEl) statusEl.innerHTML = '<i class="fa-solid fa-check-circle text-green-500"></i> เชื่อมต่อสำเร็จ!';
-                showToast('เชื่อมต่อฐานข้อมูลสำเร็จ');
-                if(unsubscribeConfig) try { unsubscribeConfig(); } catch(e) {}
-                unsubscribeConfig = onSnapshot(doc(db, 'settings', 'config'), snap => {
-                    if(snap.exists()) {
-                        const data = snap.data();
-                        if(data.appConfig) appConfig = { ...appConfig, ...data.appConfig };
-                        if(Array.isArray(data.coursesList) && data.coursesList.length > 0) coursesList = data.coursesList;
-                        trySaveLS('arisa_config', appConfig);
-                        trySaveLS('arisa_courses', coursesList);
-                        renderAppUI();
-                    }
-                }, err => console.error('Config sync:', err));
-                isFirstOrderLoad = true;
-                setupRealtimeSync();
-            } catch(e) {
-                console.error('Firebase init error:', e);
-                if(statusEl) statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-red-500"></i> ไม่สำเร็จ: ' + (e.message || 'Error');
-                showToast('เชื่อมต่อไม่สำเร็จ: ' + (e.message || 'Error'));
-            }
-        }
-
         // ============ BOOT ============
         function closeWelcome() { const p = $('welcomePopup'); if(p) p.classList.add('hidden'); }
 
@@ -1310,23 +1277,25 @@
                 const galleryInput = $('galleryInput'); if(galleryInput) galleryInput.addEventListener('change', handleGalleryUpload);
                 const authInput = $('authInputPass'); if(authInput) authInput.addEventListener('keydown', e => { if(e.key === 'Enter') submitAuthStep(); });
 
-                const savedFb = tryGetLS('arisa_fb_config', null);
-                if(savedFb && savedFb.apiKey) {
-                    try {
-                        firebaseApp = initializeApp(savedFb);
-                        db = getFirestore(firebaseApp);
-                        unsubscribeConfig = onSnapshot(doc(db, 'settings', 'config'), snap => {
-                            if(snap.exists()) {
-                                const data = snap.data();
-                                if(data.appConfig) appConfig = { ...appConfig, ...data.appConfig };
-                                if(Array.isArray(data.coursesList) && data.coursesList.length > 0) coursesList = data.coursesList;
-                                renderAppUI();
-                            }
-                        }, err => console.warn('Config sync:', err));
-                        isFirstOrderLoad = true;
-                        setupRealtimeSync();
-                    } catch(e) { console.warn('Auto Firebase failed:', e); }
-                }
+                // 🔥 CONNECT FIREBASE ทันที (ใช้ Config ที่ฝังในโค้ด)
+                firebaseApp = initializeApp(FIREBASE_CONFIG);
+                db = getFirestore(firebaseApp);
+
+                // ดึง Config ล่าสุดจาก Cloud
+                unsubscribeConfig = onSnapshot(doc(db, 'settings', 'config'), snap => {
+                    if(snap.exists()) {
+                        const data = snap.data();
+                        if(data.appConfig) appConfig = { ...appConfig, ...data.appConfig };
+                        if(Array.isArray(data.coursesList) && data.coursesList.length > 0) coursesList = data.coursesList;
+                        trySaveLS('arisa_config', appConfig);
+                        trySaveLS('arisa_courses', coursesList);
+                        renderAppUI();
+                    }
+                }, err => console.warn('Config sync:', err));
+
+                // เริ่ม Real-time Sync ออเดอร์
+                isFirstOrderLoad = true;
+                setupRealtimeSync();
 
                 const unlockAudio = () => {
                     try { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if(audioCtx.state === 'suspended') audioCtx.resume(); } catch(e) {}
@@ -1344,7 +1313,7 @@
             switchTab, saveAllAdminSettings, openCourseEditor, editCourse, saveCourse, delCourse,
             moveSection, toggleSectionVisibility, addCustomSection, delCustomSection,
             updateCustomBlock, uploadCustomBlockImg, delGalleryImage,
-            updateOrder, viewSlipById, connectDatabase, closeWelcome
+            updateOrder, viewSlipById, closeWelcome
         };
 
         if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
